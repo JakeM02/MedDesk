@@ -1,0 +1,83 @@
+
+.ticket-box {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 15px;
+    margin: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.ticket-box:hover {
+    background-color: #f1f1f1;
+}
+
+
+/*  dark mode for dashboard */
+body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+.navbar.dark-mode {
+    background-color: #333;
+    border-color: #444;
+}
+
+.ticket-box.dark-mode {
+    background-color: #222;
+    color: #fff;
+    border-color: #555;
+}
+
+/* Dark mode for modal */
+.modal.dark-mode .modal-content {
+    background-color: #333;
+    color: #fff; 
+    border-color: #444; 
+}
+
+.modal.dark-mode .modal-header {
+    background-color: #444; 
+    color: #fff; 
+}
+
+.modal.dark-mode .close {
+    color: #fff; 
+}
+
+.modal.dark-mode .modal-body {
+    background-color: #222; 
+}
+
+.modal.dark-mode .modal-footer {
+    background-color: #444; 
+}
+
+.modal.dark-mode .btn-secondary {
+    background-color: #555; 
+    border-color: #666;
+}
+
+.modal.dark-mode .btn-primary {
+    background-color: #007bff; 
+    border-color: #0056b3;
+}
+
+/*  style input fields in dark mode */
+.modal.dark-mode .form-control {
+    background-color: #555;
+    color: #fff;
+    border-color: #666;
+}
+
+.modal.dark-mode .form-control:focus {
+    background-color: #666;
+    color: #fff;
+    border-color: #007bff;
+}
+
+.modal.dark-mode label {
+    color: #ddd; 
+}
+
