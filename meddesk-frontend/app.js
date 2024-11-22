@@ -1,9 +1,10 @@
 document.addEventListener('DOMContentLoaded', function () {
     const loginForm = document.getElementById('loginForm');
     const loginError = document.getElementById('loginError');
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const logoutButton = document.getElementById('logoutButton');
     const createTicketButton = document.getElementById('createTicketButton');
     const saveTicketButton = document.getElementById('saveTicketButton');
-    const darkModeToggle = document.getElementById('darkModeToggle');
     const ticketList = document.getElementById('ticketList');
     const navbar = document.getElementById('navbar'); 
 
@@ -28,6 +29,12 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 loginError.style.display = 'block';
             }
+        });
+    }
+
+    if (logoutButton) {
+        logoutButton.addEventListener('click', function () {
+            window.location.href = 'login.html';  // Redirect to login page
         });
     }
 
