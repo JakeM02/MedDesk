@@ -72,22 +72,30 @@ document.addEventListener('DOMContentLoaded', function () {
     // Display tickets
     function displayTickets() {
         ticketList.innerHTML = ''; // Clear existing tickets
-        tickets.forEach(ticket => {
-            const ticketDiv = document.createElement('div');
-            ticketDiv.className = 'ticket-box col-md-4';
-            ticketDiv.innerHTML = `
-                <h5>Ticket #${ticket.id}: ${ticket.title}</h5>
-                <p>Employee: ${ticket.employee}</p>
-            `;
-            ticketDiv.addEventListener('click', () => openTicket(ticket));
-            ticketList.appendChild(ticketDiv);
 
-            // Apply dark mode styling for new tickets
-            if (document.body.classList.contains('dark-mode')) {
-                ticketDiv.classList.add('dark-mode');
-            }
+        fetch('http://127.0.0.1:5000/api/tickets')
+        .then(response => response.json())
+        .then(tickets => {
+            tickets.forEach(ticket => {
+                const ticketDiv = document.createElement('div');
+                ticketDiv.className = 'ticket-box col-md-4';
+                ticketDiv.innerHTML = `
+                    <h5>Ticket #${ticket.id}: ${ticket.title}</h5>
+                    <p>Employee: ${ticket.employee}</p>
+                `;
+                ticketDiv.addEventListener('click', () => openTicket(ticket));
+                ticketList.appendChild(ticketDiv);
+
+                // Apply dark mode styling for new tickets
+                if (document.body.classList.contains('dark-mode')) {
+                    ticketDiv.classList.add('dark-mode');
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching tickets:', error);           
         });
-    }
+}
 
     // Open ticket details in a modal
     function openTicket(ticket) {
@@ -125,28 +133,45 @@ document.addEventListener('DOMContentLoaded', function () {
             const location = document.getElementById('location').value;
             const issueTitle = document.getElementById('issueTitle').value;
             const issueDescription = document.getElementById('issueDescription').value;
-
+        
             if (userName && staffNumber && phoneNumber && location && issueTitle && issueDescription) {
                 const newTicket = {
-                    id: tickets.length + 1,
                     employee: userName,
-                    staffNumber,
-                    phoneNumber,
-                    location,
+                    staff_number: staffNumber,
+                    phone_number: phoneNumber,
+                    location: location,
                     title: issueTitle,
                     description: issueDescription
                 };
-
-                tickets.push(newTicket);
-                displayTickets();
-
-                const modal = bootstrap.Modal.getInstance(document.getElementById('createTicketModal'));
-                modal.hide();
-                document.getElementById('ticketForm').reset();
+        
+                // Send the new ticket to the backend using POST
+                fetch('http://127.0.0.1:5000/api/tickets', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newTicket)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Refresh the tickets list after adding the new ticket
+                    displayTickets();
+        
+                    // Hide the modal after successful creation
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('createTicketModal'));
+                    modal.hide();
+        
+                    // Reset the form
+                    document.getElementById('ticketForm').reset();
+                })
+                .catch(error => {
+                    console.error('Error adding ticket:', error);
+                });
             } else {
                 alert('Please fill in all fields.');
             }
         });
+        
     }
 
     // Initial display of tickets
