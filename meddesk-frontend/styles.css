@@ -79,3 +79,26 @@ body.dark-mode {
 .modal.dark-mode label {
     color: #ddd; 
 }
+
+/*  dashboard buttons */
+body.dark-mode .btn-outline-primary {
+    color: #fff;
+    border-color: #007bff;
+    background-color: transparent;
+}
+
+body.dark-mode .btn-outline-primary:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+body.dark-mode .btn-outline-secondary {
+    color: #fff;
+    border-color: #dedfc7;
+    background-color: transparent;
+}
+
+body.dark-mode .btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: #fff;
+}
