@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from flask_cors import CORS  # Import CORS
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 
 # Initialize SQLAlchemy
@@ -31,6 +31,7 @@ def create_app():
         staff_number = db.Column(db.String(50), nullable=True)
         phone_number = db.Column(db.String(50), nullable=True)
         description = db.Column(db.Text, nullable=False)
+        archived = db.Column(db.Boolean, default=False)
 
         def to_dict(self):
             """Convert the Ticket object into a dictionary."""
@@ -42,6 +43,7 @@ def create_app():
                 "staff_number": self.staff_number,
                 "phone_number": self.phone_number,
                 "description": self.description,
+                "archived": self.archived,
             }
 
     # API routes
@@ -88,6 +90,7 @@ def create_app():
             return jsonify(ticket.to_dict())
         return jsonify({"error": "Ticket not found"}), 404
 
+
     @app.route('/api/tickets/<int:ticket_id>', methods=['DELETE'])
     def delete_ticket(ticket_id):
         """Delete a specific ticket by ID."""
@@ -97,7 +100,40 @@ def create_app():
             db.session.commit()
             return jsonify({"message": "Ticket deleted"}), 200
         return jsonify({"error": "Ticket not found"}), 404
+    
+    # Fetch active tickets (archived = False)
+    @app.route('/api/tickets/active', methods=['GET'])
+    def get_active_tickets():
+        """Fetch active tickets (archived = False)."""
+        tickets = db.session.query(Ticket).filter_by(archived=False).all()
+        return jsonify([ticket.to_dict() for ticket in tickets])
 
+    # Fetch archived tickets (archived = True)
+    @app.route('/api/tickets/archived', methods=['GET'])
+    def get_archived_tickets():
+        """Fetch archived tickets (archived = True)."""
+        tickets = db.session.query(Ticket).filter_by(archived=True).all()
+        return jsonify([ticket.to_dict() for ticket in tickets])
+
+    @app.route('/api/tickets/<int:id>/archive', methods=['POST', 'DELETE'])
+    def toggle_ticket_archive(id):
+        ticket = Ticket.query.get_or_404(id)
+        
+        if request.method == 'POST':
+            # Archive the ticket
+            ticket.archived = True
+        elif request.method == 'DELETE':
+            # Restore the ticket
+            ticket.archived = False
+
+        try:
+            db.session.commit()
+            return jsonify({'message': 'Ticket archive status updated', 'archived': ticket.archived, 'ticket': ticket.to_dict()})
+        except Exception as e:
+            db.session.rollback()  # Rollback in case of error
+            return jsonify({"error": "Failed to update ticket archive status", "details": str(e)}), 500
+
+    
     return app
 
 
