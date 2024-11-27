@@ -6,13 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const createTicketButton = document.getElementById('createTicketButton');
     const saveTicketButton = document.getElementById('saveTicketButton');
     const ticketList = document.getElementById('ticketList');
-    const navbar = document.getElementById('navbar'); 
-
-    const tickets = [
-        { id: 1, title: 'Computer Issue', employee: 'John Doe', description: 'PC not turning on' },
-        { id: 2, title: 'Printer Malfunction', employee: 'Jane Smith', description: 'Printer jammed' },
-        { id: 3, title: 'Network Issue', employee: 'Alice Brown', description: 'WiFi connectivity problems' }
-    ];
+    const navbar = document.getElementById('navbar');
 
     // Login functionality
     if (loginForm) {
@@ -25,9 +19,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const password = document.getElementById('password').value;
 
             if (username === validUsername && password === validPassword) {
-                window.location.href = 'dashboard.html';
+                window.location.href = 'dashboard.html'; // Redirect to dashboard on successful login
             } else {
-                loginError.style.display = 'block';
+                loginError.style.display = 'block'; // Show login error message
             }
         });
     }
@@ -69,48 +63,72 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Display tickets
-    function displayTickets() {
+    // Display active tickets
+    function displayActiveTickets() {
         ticketList.innerHTML = ''; // Clear existing tickets
 
+        // Fetch the active tickets (archived = false)
         fetch('http://127.0.0.1:5000/api/tickets')
-        .then(response => response.json())
-        .then(tickets => {
-            tickets.forEach(ticket => {
-                const ticketDiv = document.createElement('div');
-                ticketDiv.className = 'ticket-box col-md-4';
-                ticketDiv.innerHTML = `
-                    <h5>Ticket #${ticket.id}: ${ticket.title}</h5>
-                    <p>Employee: ${ticket.employee}</p>
-                `;
-                ticketDiv.addEventListener('click', () => openTicket(ticket));
-                ticketList.appendChild(ticketDiv);
-
-                // Apply dark mode styling for new tickets
-                if (document.body.classList.contains('dark-mode')) {
-                    ticketDiv.classList.add('dark-mode');
+            .then(response => response.json())
+            .then(tickets => {
+                const activeTickets = tickets.filter(ticket => !ticket.archived); // Filter for active tickets
+                if (activeTickets.length === 0) {
+                    ticketList.innerHTML = '<p>No active tickets available.</p>';
+                    return;
                 }
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching tickets:', error);           
-        });
-}
 
-    // Open ticket details in a modal
-    function openTicket(ticket) {
+                // Loop through the active tickets and display them
+                activeTickets.forEach(ticket => {
+                    const ticketDiv = document.createElement('div');
+                    ticketDiv.className = 'ticket-box col-md-4';
+                    ticketDiv.innerHTML = `
+                        <h5>Ticket #${ticket.id}: ${ticket.title}</h5>
+                        <p>Employee: ${ticket.employee}</p>
+                    `;
+                    ticketDiv.addEventListener('click', () => openTicketFromActive(ticket));
+                    ticketList.appendChild(ticketDiv);
+
+                    // Apply dark mode styling if it's enabled
+                    if (document.body.classList.contains('dark-mode')) {
+                        ticketDiv.classList.add('dark-mode');
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching active tickets:', error);
+            });
+    }
+
+    // Open ticket details in a modal (for active tickets)
+    function openTicketFromActive(ticket) {
         const ticketDetailsContent = document.getElementById('ticketDetailsContent');
         ticketDetailsContent.innerHTML = `
             <p><strong>Title:</strong> ${ticket.title}</p>
             <p><strong>Employee:</strong> ${ticket.employee}</p>
             <p><strong>Location:</strong> ${ticket.location || 'N/A'}</p>
-            <p><strong>Staff Number:</strong> ${ticket.staffNumber || 'N/A'}</p>
-            <p><strong>Phone Number:</strong> ${ticket.phoneNumber || 'N/A'}</p>
+            <p><strong>Staff Number:</strong> ${ticket.staff_number || 'N/A'}</p>
+            <p><strong>Phone Number:</strong> ${ticket.phone_number || 'N/A'}</p>
             <p><strong>Description:</strong> ${ticket.description}</p>
         `;
+        
+        // Initialize the modal and show it
         const modal = new bootstrap.Modal(document.getElementById('ticketDetailsModal'));
         modal.show();
-
+    
+        const archiveButton = document.getElementById('archiveTicketButton');
+        archiveButton.style.display = 'block'; // Ensure the button is visible
+        archiveButton.innerText = 'Archive Ticket'; // Action is to archive the ticket
+        
+        // Archive button action for active ticket
+        archiveButton.onclick = function () {
+            toggleArchiveStatus(ticket); // Archive the ticket
+    
+            // Close the modal after the action
+            const modalElement = document.getElementById('ticketDetailsModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalElement); // Get the modal instance
+            modalInstance.hide();
+        };
+    
         // Apply dark mode styling for modal dynamically
         if (document.body.classList.contains('dark-mode')) {
             document.getElementById('ticketDetailsModalContent').classList.add('dark-mode');
@@ -155,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(response => response.json())
                 .then(data => {
                     // Refresh the tickets list after adding the new ticket
-                    displayTickets();
+                    displayActiveTickets();
         
                     // Hide the modal after successful creation
                     const modal = bootstrap.Modal.getInstance(document.getElementById('createTicketModal'));
@@ -171,11 +189,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('Please fill in all fields.');
             }
         });
-        
     }
 
-    // Initial display of tickets
+    // Initial display of active tickets (on page load)
     if (ticketList) {
-        displayTickets();
+        displayActiveTickets();
     }
 });
