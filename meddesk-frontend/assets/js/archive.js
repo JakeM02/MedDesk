@@ -35,6 +35,54 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // modal for creating new users as admin
+    document.getElementById('registerUserBtn').addEventListener('click', function() {
+        // Show the modal when the button is clicked
+        $('#userModal').modal('show');
+    });
+
+    document.getElementById('registerUserForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        // Ensure the username and password fields are not empty
+        if (username && password) {
+            // Since admin ID is always 1, we send '1' directly in the header
+            const userId = 1;  // Admin ID
+            
+            // Prepare the data to send to the backend
+            const userData = {
+                username: username,
+                password: password
+            };
+
+            // Send the data to the backend
+            fetch('http://127.0.0.1:5000/api/admin/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-ID': userId, // Send the admin ID (which is fixed as 1)
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert('User registered successfully');
+                    $('#userModal').modal('hide'); // Close the modal
+                } else if (data.error) {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while registering the user.');
+            });
+        }
+    });
+
     // Display archived tickets
     function displayArchivedTickets() {
         ticketList.innerHTML = ''; // Clear existing tickets
@@ -127,8 +175,6 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
             alert('Ticket restored successfully!');
             displayArchivedTickets(); // Refresh the archived ticket list
-            // Optionally, you can refresh active tickets list if needed:
-            // displayActiveTickets();
         })
         .catch(error => {
             console.error('Error restoring ticket:', error);

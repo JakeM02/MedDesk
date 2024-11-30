@@ -10,27 +10,67 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Login functionality
     if (loginForm) {
-        const validUsername = 'admin';
-        const validPassword = 'password';
-
         loginForm.addEventListener('submit', function (event) {
             event.preventDefault();
+
+            // Get the username and password from the input fields
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            if (username === validUsername && password === validPassword) {
-                window.location.href = 'dashboard.html'; // Redirect to dashboard on successful login
-            } else {
-                loginError.style.display = 'block'; // Show login error message
-            }
+            // Prepare the payload for the POST request
+            const payload = {
+                username: username,
+                password: password
+            };
+
+            // Send the POST request to the Flask server
+            fetch('http://127.0.0.1:5000/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)  // Send credentials as JSON
+            })
+            .then(response => response.json())  // Parse JSON response
+            .then(data => {
+                // Check if login was successful
+                if (data.message) {
+                    // Store user information 
+                    localStorage.setItem('userId', data.user_id);
+                    localStorage.setItem('isAdmin', data.is_admin);
+                    window.location.href = data.redirect_url; // Redirect to dashboard on successful login
+                } else {
+                    // If login failed, show error message
+                    loginError.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loginError.style.display = 'block';  // Show error message if request fails
+            });
         });
     }
 
+    //log out
     if (logoutButton) {
         logoutButton.addEventListener('click', function () {
-            window.location.href = 'login.html';  // Redirect to login page
+            fetch('/logout', {
+                method: 'POST',  // Use POST method to trigger the Flask route
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => {
+                // On successful logout, redirect to the login page
+                window.location.href = '/';  //  login page
+            })
+            .catch(error => {
+                console.error('Logout failed:', error);
+                alert('Failed to log out. Please try again.');
+            });
         });
     }
+    
 
     // Dark mode functionality
     function enableDarkMode() {
@@ -62,6 +102,62 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // modal for creating new users as admin
+    document.getElementById('registerUserBtn').addEventListener('click', function() {
+        // Show the modal when the button is clicked
+        $('#userModal').modal('show');
+    });
+
+    // Handle form submission for user registration
+    document.getElementById('registerUserForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        // Get the form data
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        
+        // Ensure the username and password fields are not empty
+        if (username && password) {
+            const userId = 1;  // Admin ID
+            
+            // Prepare the data to send to the backend
+            const userData = {
+                username: username,
+                password: password
+            };
+
+            console.log('User Data:', userData); // Debugging
+
+            // Send the data to the backend using fetch
+            fetch('http://127.0.0.1:5000/api/admin/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-ID': userId,
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Response Data:', data); // Debugging
+
+                if (data.message) {
+                    alert('User registered successfully');
+                    $('#userModal').modal('hide'); // Close the modal
+                } else if (data.error) {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while registering the user.');
+            });
+        } else {
+            alert('Please fill in both fields.');
+        }
+    });
+
 
     // Display active tickets
     function displayActiveTickets() {
@@ -99,6 +195,27 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
+    // Function to archive a ticket
+    function archiveTicket(ticket) {
+        fetch(`http://127.0.0.1:5000/api/tickets/${ticket.id}/archive`, {
+            method: 'POST'  // Use POST to archive the ticket
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to archive ticket');
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert('Ticket archived successfully!');
+            displayActiveTickets(); // Refresh the active ticket list to remove the archived ticket
+        })
+        .catch(error => {
+            console.error('Error archiving ticket:', error);
+            alert('An error occurred while archiving the ticket. Please try again.');
+        });
+    }
+
     // Open ticket details in a modal (for active tickets)
     function openTicketFromActive(ticket) {
         const ticketDetailsContent = document.getElementById('ticketDetailsContent');
@@ -110,30 +227,32 @@ document.addEventListener('DOMContentLoaded', function () {
             <p><strong>Phone Number:</strong> ${ticket.phone_number || 'N/A'}</p>
             <p><strong>Description:</strong> ${ticket.description}</p>
         `;
-        
-        // Initialize the modal and show it
+
+        // Initialize and show the modal
         const modal = new bootstrap.Modal(document.getElementById('ticketDetailsModal'));
         modal.show();
-    
+
+        // Show the "Archive Ticket" button for active tickets
         const archiveButton = document.getElementById('archiveTicketButton');
-        archiveButton.style.display = 'block'; // Ensure the button is visible
-        archiveButton.innerText = 'Archive Ticket'; // Action is to archive the ticket
-        
-        // Archive button action for active ticket
+        archiveButton.style.display = 'block'; // Make sure the button is visible
+        archiveButton.innerText = 'Archive Ticket'; // Set button text for archiving
+
+        // Archive ticket when the button is clicked
         archiveButton.onclick = function () {
-            toggleArchiveStatus(ticket); // Archive the ticket
-    
-            // Close the modal after the action
+            archiveTicket(ticket); // Call the function to archive the ticket
+
+            // Close the modal after archiving
             const modalElement = document.getElementById('ticketDetailsModal');
             const modalInstance = bootstrap.Modal.getInstance(modalElement); // Get the modal instance
             modalInstance.hide();
         };
-    
-        // Apply dark mode styling for modal dynamically
+
+        // Apply dark mode styling for the modal dynamically
+        const modalContent = document.getElementById('ticketDetailsModalContent');
         if (document.body.classList.contains('dark-mode')) {
-            document.getElementById('ticketDetailsModalContent').classList.add('dark-mode');
+            modalContent.classList.add('dark-mode');
         } else {
-            document.getElementById('ticketDetailsModalContent').classList.remove('dark-mode');
+            modalContent.classList.remove('dark-mode');
         }
     }
 
