@@ -219,8 +219,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Open ticket details in a modal (for active tickets)
     function openTicketFromActive(ticket) {
         const ticketDetailsContent = document.getElementById('ticketDetailsContent');
+        const ticketDetailsModalLabel = document.getElementById('ticketDetailsModalLabel');
+        ticketDetailsModalLabel.innerHTML = `<p>Ticket #${ticket.id}: ${ticket.title}</p>`;
         ticketDetailsContent.innerHTML = `
-            <p><strong>Title:</strong> ${ticket.title}</p>
             <p><strong>Employee:</strong> ${ticket.employee}</p>
             <p><strong>Location:</strong> ${ticket.location || 'N/A'}</p>
             <p><strong>Staff Number:</strong> ${ticket.staff_number || 'N/A'}</p>
