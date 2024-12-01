@@ -95,7 +95,6 @@ def create_app():
             return f(*args, **kwargs)
         return decorated_function
 
-
 # API routes
     #root url
     @app.route('/')
@@ -115,6 +114,11 @@ def create_app():
     def admin_dashboard():
         """Render the admin dashboard."""
         return render_template("admin_dashboard.html")  # admin dashboard HTML page
+    
+    @app.route('/admin/archive', methods=['GET'])
+    @admin_required  # Ensure only admin can access
+    def admin_archive():
+        return render_template('admin_archive.html')
     
 
     #Users

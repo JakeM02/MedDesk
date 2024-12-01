@@ -103,6 +103,62 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // modal for creating new users as admin
+    document.getElementById('registerUserBtn').addEventListener('click', function() {
+        // Show the modal when the button is clicked
+        $('#userModal').modal('show');
+    });
+
+    // Handle form submission for user registration
+    document.getElementById('registerUserForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        // Get the form data
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        
+        // Ensure the username and password fields are not empty
+        if (username && password) {
+            const userId = 1;  // Admin ID
+            
+            // Prepare the data to send to the backend
+            const userData = {
+                username: username,
+                password: password
+            };
+
+            console.log('User Data:', userData); // Debugging
+
+            // Send the data to the backend using fetch
+            fetch('http://127.0.0.1:5000/api/admin/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-ID': userId,
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Response Data:', data); // Debugging
+
+                if (data.message) {
+                    alert('User registered successfully');
+                    $('#userModal').modal('hide'); // Close the modal
+                } else if (data.error) {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while registering the user.');
+            });
+        } else {
+            alert('Please fill in both fields.');
+        }
+    });
+
+
     // Display active tickets
     function displayActiveTickets() {
         ticketList.innerHTML = ''; // Clear existing tickets
