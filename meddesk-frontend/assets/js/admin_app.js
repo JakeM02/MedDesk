@@ -223,6 +223,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ticketDetailsModalLabel.innerHTML = `<p>Ticket #${ticket.id}: ${ticket.title}</p>`;
         ticketDetailsContent.innerHTML = `
             <p><strong>Employee:</strong> ${ticket.employee}</p>
+            <p><strong>Email:</strong> ${ticket.email}</p>
             <p><strong>Location:</strong> ${ticket.location || 'N/A'}</p>
             <p><strong>Staff Number:</strong> ${ticket.staff_number || 'N/A'}</p>
             <p><strong>Phone Number:</strong> ${ticket.phone_number || 'N/A'}</p>
@@ -271,15 +272,17 @@ document.addEventListener('DOMContentLoaded', function () {
             const location = document.getElementById('location').value;
             const issueTitle = document.getElementById('issueTitle').value;
             const issueDescription = document.getElementById('issueDescription').value;
-        
-            if (userName && staffNumber && phoneNumber && location && issueTitle && issueDescription) {
+            const userEmail = document.getElementById('userEmail').value;
+
+            if (userName && staffNumber && phoneNumber && location && issueTitle && issueDescription && userEmail) {
                 const newTicket = {
                     employee: userName,
                     staff_number: staffNumber,
                     phone_number: phoneNumber,
                     location: location,
                     title: issueTitle,
-                    description: issueDescription
+                    description: issueDescription,
+                    email: userEmail
                 };
         
                 // Send the new ticket to the backend using POST

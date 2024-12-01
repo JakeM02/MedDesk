@@ -102,6 +102,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 ticketDetailsContent.innerHTML = `
                     <p><strong>Title:</strong> ${data.title}</p>
                     <p><strong>Employee:</strong> ${data.employee}</p>
+                    <p><strong>Email:</strong> ${ticket.email}</p>
                     <p><strong>Location:</strong> ${data.location || 'N/A'}</p>
                     <p><strong>Staff Number:</strong> ${data.staff_number || 'N/A'}</p>
                     <p><strong>Phone Number:</strong> ${data.phone_number || 'N/A'}</p>

@@ -42,6 +42,7 @@ def create_app():
         id = db.Column(db.Integer, primary_key=True)
         title = db.Column(db.String(200), nullable=False)
         employee = db.Column(db.String(200), nullable=False)
+        email = db.Column(db.String(200), nullable=False)
         location = db.Column(db.String(200), nullable=True)
         staff_number = db.Column(db.String(50), nullable=True)
         phone_number = db.Column(db.String(50), nullable=True)
@@ -54,6 +55,7 @@ def create_app():
                 "id": self.id,
                 "title": self.title,
                 "employee": self.employee,
+                "email": self.email,
                 "location": self.location,
                 "staff_number": self.staff_number,
                 "phone_number": self.phone_number,
@@ -200,6 +202,7 @@ def create_app():
             new_ticket = Ticket(
                 title=data['title'],
                 employee=data['employee'],
+                email=data['email'],
                 description=data['description'],
                 staff_number=data.get('staff_number'),
                 phone_number=data.get('phone_number'),
