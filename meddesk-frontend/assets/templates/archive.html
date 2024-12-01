@@ -18,7 +18,6 @@
             <div class="ms-auto d-flex align-items-center">
                 <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary me-2">Dashboard</a>
                 <a href="{{ url_for('archive') }}" class="btn btn-outline-primary me-2">Archive</a>
-                <button id="registerUserBtn" class="btn btn-outline-secondary me-2">Register New User</button>
                 <button id="darkModeToggle" class="btn btn-outline-secondary me-2">Dark Mode</button>
                 <button id="logoutButton" class="btn btn-outline-danger">Logout</button>
             </div>
@@ -62,32 +61,6 @@
         </div>
     </div>
   
-    <!-- Modal for user registration -->
-    <div class="modal" id="userModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content dark-mode">
-                <div class="modal-header dark-mode">
-                    <h5 class="modal-title">Register New User</h5>
-                </div>
-                <div class="modal-body dark-mode">
-                    <form id="registerUserForm">
-                        <div class="form-group">
-                            <label for="username">Username</label>
-                            <input type="text" class="form-control" id="username" placeholder="Enter username" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="password">Password</label>
-                            <input type="password" class="form-control" id="password" placeholder="Enter password" required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer dark-mode">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" id="registerButton">Register</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
