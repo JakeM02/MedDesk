@@ -314,6 +314,24 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    //listener for  staffnumber
+    document.getElementById('staffNumber').addEventListener('blur', function () {
+        const staffNumber = this.value;
+        fetch(`/api/employees/${staffNumber}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.name) {
+                    document.getElementById('userName').value = data.name;
+                    document.getElementById('userEmail').value = data.email;
+                    document.getElementById('phoneNumber').value = data.phone_number;
+                    document.getElementById('location').value = data.location;
+                } else {
+                    alert('Employee not found!');
+                }
+            })
+            .catch(error => console.error('Error fetching employee info:', error));
+    });
+
     // Initial display of active tickets (on page load)
     if (ticketList) {
         displayActiveTickets();

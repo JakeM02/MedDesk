@@ -1,9 +1,9 @@
-from flask import Flask, jsonify, render_template, request, g, session
-from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, jsonify, render_template, request, g ,session #flask framework
+from flask_cors import CORS # Cross origin for APIs
+from flask_sqlalchemy import SQLAlchemy # ORM allows code to convert to database data
 from functools import wraps #for enforcing admin permissions
 import hashlib #password hashing
-import os
+import os # OS functions (generating random key)
 
 # Initialize SQLAlchemy
 db = SQLAlchemy()
@@ -19,7 +19,7 @@ def create_app():
 
     # Database configuration using pg8000 driver
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+pg8000://meddeskadmin:admin@localhost/meddesk'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False #disabled tracking changes to avoid warnings and performance
 
     # generates secret key for sessions
     app.config['SECRET_KEY'] = os.urandom(24)
@@ -49,6 +49,7 @@ def create_app():
         description = db.Column(db.Text, nullable=False)
         archived = db.Column(db.Boolean, default=False)
 
+        #compatible with jsonify to structure data
         def to_dict(self):
             """Convert the Ticket object into a dictionary."""
             return {
@@ -62,6 +63,16 @@ def create_app():
                 "description": self.description,
                 "archived": self.archived,
             }
+
+    # define employee model
+    class Employee(db.Model):
+        __tablename__ = 'employees'
+        id = db.Column(db.Integer, primary_key=True)
+        name = db.Column(db.String(100), nullable=False)
+        email = db.Column(db.String(100), unique=True, nullable=False)
+        staff_number = db.Column(db.String(50), unique=True, nullable=False)
+        phone_number = db.Column(db.String(15), nullable=True)
+        location = db.Column(db.String(100), nullable=True)     
             
     # Function to hash a password with a salt
     def hash_password(password: str) -> str:
@@ -80,8 +91,8 @@ def create_app():
         except ValueError:
             return False  # Handle incorrect format
         
-    def admin_required(f):
-        @wraps(f)
+    def admin_required(f): # enforces admin-only    
+        @wraps(f) # wraps function so arguments are passed through
         def decorated_function(*args, **kwargs):
             # Fetch user_id from session set at login
             user_id = session.get('user_id')
@@ -269,6 +280,19 @@ def create_app():
             db.session.rollback()  # Rollback in case of error
             return jsonify({"error": "Failed to update ticket archive status", "details": str(e)}), 500
 
+
+    #search employee by staff number
+    @app.route('/api/employees/<string:staff_number>', methods=['GET'])
+    def get_employee_info(staff_number):
+        employee = Employee.query.filter_by(staff_number=int(staff_number)).first()
+        if employee:
+            return jsonify({
+                "name": employee.name,
+                "email": employee.email,
+                "phone_number": employee.phone_number,
+                "location": employee.location
+            })
+        return jsonify({"error": "Employee not found"}), 404
     
     return app
 
