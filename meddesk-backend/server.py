@@ -294,6 +294,40 @@ def create_app():
             })
         return jsonify({"error": "Employee not found"}), 404
     
+    #search tickets by id title name or location
+    @app.route('/api/tickets/search', methods=['GET'])
+    def search_tickets():
+        query = request.args.get('query', '').strip()
+
+        if not query:
+            return jsonify({"error": "Search query is required"}), 400
+
+        # Perform the search by ticket ID
+        try:
+            ticket_id = int(query)  # Try to convert the query into an integer for ticket id
+        except ValueError:
+            return jsonify({"error": "Invalid ticket ID format"}), 400
+
+        search_results = Ticket.query.filter_by(id=ticket_id).all()
+
+        if not search_results:
+            return jsonify({"message": "No tickets found"}), 404
+
+        return jsonify([
+            {
+                "id": ticket.id,
+                "title": ticket.title,
+                "employee": ticket.employee,
+                "email": ticket.email,
+                "location": ticket.location,
+                "staff_number": ticket.staff_number,
+                "phone_number": ticket.phone_number,
+                "description": ticket.description,
+                "archived": ticket.archived
+            }
+            for ticket in search_results
+        ])
+
     return app
 
 
