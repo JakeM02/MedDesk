@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     ticketDiv.innerHTML = `
                         <h5>Ticket #${ticket.id}: ${ticket.title}</h5>
                         <p>Employee: ${ticket.employee}</p>
+                        <p><strong>Priority:</strong> <span class="priority-badge">${ticket.priority}</span></p>
                     `;
                     ticketDiv.addEventListener('click', () => openTicketFromArchive(ticket));
                     ticketList.appendChild(ticketDiv);
@@ -106,6 +107,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <p><strong>Location:</strong> ${data.location || 'N/A'}</p>
                     <p><strong>Staff Number:</strong> ${data.staff_number || 'N/A'}</p>
                     <p><strong>Phone Number:</strong> ${data.phone_number || 'N/A'}</p>
+                    <p><strong>Priority:</strong> ${ticket.priority || 'N/A'}</p>
                     <p><strong>Description:</strong> ${data.description}</p>
                 `;
 

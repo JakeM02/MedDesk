@@ -73,12 +73,21 @@
                   </div>
                   <div class="form-group">
                       <label for="issueTitle">Title of Issue</label>
-                      <input type="text" id="issueTitle" class="form-control" required>
+                      <input type="text" id="issueTitle" class="form-control" maxlength="32" required>
                   </div>
                   <div class="form-group">
                       <label for="issueDescription">Description of Issue</label>
                       <textarea id="issueDescription" class="form-control" rows="4" required></textarea>
                   </div>
+                  <div class="form-group">
+                    <label for="priority">Priority</label>
+                    <select id="priority" class="form-control" required>
+                        <option value="Low">Low</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="High">High</option>
+                        <option value="Critical">Critical</option>
+                    </select>
+                </div>                
               </form>
           </div>
           <div class="modal-footer dark-mode"> 

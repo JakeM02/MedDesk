@@ -40,7 +40,7 @@ def create_app():
     class Ticket(db.Model):
         __tablename__ = 'ticket'
         id = db.Column(db.Integer, primary_key=True)
-        title = db.Column(db.String(200), nullable=False)
+        title = db.Column(db.String(32), nullable=False)
         employee = db.Column(db.String(200), nullable=False)
         email = db.Column(db.String(200), nullable=False)
         location = db.Column(db.String(200), nullable=True)
@@ -48,6 +48,7 @@ def create_app():
         phone_number = db.Column(db.String(50), nullable=True)
         description = db.Column(db.Text, nullable=False)
         archived = db.Column(db.Boolean, default=False)
+        priority = db.Column(db.String(20), nullable=False, default="Medium")
 
         #compatible with jsonify to structure data
         def to_dict(self):
@@ -62,6 +63,7 @@ def create_app():
                 "phone_number": self.phone_number,
                 "description": self.description,
                 "archived": self.archived,
+                "priority": self.priority,
             }
 
     # define employee model
@@ -195,9 +197,17 @@ def create_app():
     #Tickets/Archiving
     @app.route('/api/tickets', methods=['GET'])
     def get_tickets():
-        """Fetch all tickets."""
+        """Fetch all tickets and sort by priority."""
+
+        PRIORITY_ORDER = {
+        "Critical": 1,
+        "High": 2,
+        "Medium": 3,
+        "Low": 4
+    }
         tickets = Ticket.query.all()
-        return jsonify([ticket.to_dict() for ticket in tickets])
+        sorted_tickets = sorted(tickets, key=lambda ticket: PRIORITY_ORDER.get(ticket.priority, 5))
+        return jsonify([ticket.to_dict() for ticket in sorted_tickets])
 
     @app.route('/api/tickets', methods=['POST'])
     def create_ticket():
@@ -206,6 +216,9 @@ def create_app():
         if not data:
             return jsonify({"error": "Invalid input, JSON data is required"}), 400
 
+        if len(data['title']) > 32:
+            return jsonify({"error": "Title must be 32 characters or less"}), 400
+        
         try:
             # Check what data is received
             print("Received data:", data)
@@ -218,6 +231,7 @@ def create_app():
                 staff_number=data.get('staff_number'),
                 phone_number=data.get('phone_number'),
                 location=data.get('location'),
+                priority=data.get('priority', 'Medium')
             )
             db.session.add(new_ticket)
             db.session.commit()

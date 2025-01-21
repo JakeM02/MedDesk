@@ -28,8 +28,7 @@ function searchTickets() {
               <p><strong>User Email:</strong> ${ticket.user_email}</p>
               <p><strong>Phone Number:</strong> ${ticket.phone_number}</p>
               <p><strong>Location:</strong> ${ticket.location}</p>
-              <p><strong>Description:</strong> ${ticket.description}</p>
-              <p><strong>Status:</strong> ${ticket.status}</p>
+              <p><strong>Description:</strong> ${ticket.description}</p>                       
           `;
 
           // Show the modal

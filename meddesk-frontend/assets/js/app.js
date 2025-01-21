@@ -124,6 +124,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     ticketDiv.innerHTML = `
                         <h5>Ticket #${ticket.id}: ${ticket.title}</h5>
                         <p>Employee: ${ticket.employee}</p>
+                        <p><strong>Priority:</strong> <span class="priority-badge">${ticket.priority}</span></p>
                     `;
                     ticketDiv.addEventListener('click', () => openTicketFromActive(ticket));
                     ticketList.appendChild(ticketDiv);
@@ -171,6 +172,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <p><strong>Location:</strong> ${ticket.location || 'N/A'}</p>
             <p><strong>Staff Number:</strong> ${ticket.staff_number || 'N/A'}</p>
             <p><strong>Phone Number:</strong> ${ticket.phone_number || 'N/A'}</p>
+            <p><strong>Priority:</strong> ${ticket.priority || 'N/A'}</p>
             <p><strong>Description:</strong> ${ticket.description}</p>
         `;
 
@@ -217,8 +219,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const issueTitle = document.getElementById('issueTitle').value;
             const issueDescription = document.getElementById('issueDescription').value;
             const userEmail = document.getElementById('userEmail').value;
+            const priority = document.getElementById('priority').value;
         
-            if (userName && staffNumber && phoneNumber && location && issueTitle && issueDescription && userEmail) {
+            if (userName && staffNumber && phoneNumber && location && issueTitle && issueDescription && userEmail && priority) {
                 const newTicket = {
                     employee: userName,
                     staff_number: staffNumber,
@@ -226,7 +229,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     location: location,
                     title: issueTitle,
                     description: issueDescription,
-                    email: userEmail
+                    email: userEmail,
+                    priority: priority
                 };
         
                 // Send the new ticket to the backend using POST
