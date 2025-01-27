@@ -29,7 +29,7 @@ function searchTickets() {
               <p><strong>Phone Number:</strong> ${ticket.phone_number}</p>
               <p><strong>Location:</strong> ${ticket.location}</p>
               <p><strong>Description:</strong> ${ticket.description}</p>  
-              <p><strong>Assigned to:</strong> ${ticket.assigned_username || 'Unassigned'}</p> <!-- If no assignment, display 'Unassigned' -->                    
+              <p><strong>Assigned to:</strong> ${ticket.assigned_username || 'Unassigned'}</p>                   
           `;
 
           // Show the modal
