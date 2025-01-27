@@ -1,76 +1,10 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const loginForm = document.getElementById('loginForm');
-    const loginError = document.getElementById('loginError');
     const darkModeToggle = document.getElementById('darkModeToggle');
-    const logoutButton = document.getElementById('logoutButton');
     const createTicketButton = document.getElementById('createTicketButton');
     const saveTicketButton = document.getElementById('saveTicketButton');
     const ticketList = document.getElementById('ticketList');
     const navbar = document.getElementById('navbar');
-
-    // Login functionality
-    if (loginForm) {
-        loginForm.addEventListener('submit', function (event) {
-            event.preventDefault();
-
-            // Get the username and password from the input fields
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            // Prepare the payload for the POST request
-            const payload = {
-                username: username,
-                password: password
-            };
-
-            // Send the POST request to the Flask server
-            fetch('http://127.0.0.1:5000/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload)  // Send credentials as JSON
-            })
-            .then(response => response.json())  // Parse JSON response
-            .then(data => {
-                // Check if login was successful
-                if (data.message) {
-                    // Store user information 
-                    localStorage.setItem('userId', data.user_id);
-                    localStorage.setItem('isAdmin', data.is_admin);
-                    window.location.href = data.redirect_url; // Redirect to dashboard on successful login
-                } else {
-                    // If login failed, show error message
-                    loginError.style.display = 'block';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                loginError.style.display = 'block';  // Show error message if request fails
-            });
-        });
-    }
-
-    //log out
-    if (logoutButton) {
-        logoutButton.addEventListener('click', function () {
-            fetch('/logout', {
-                method: 'POST',  // Use POST method to trigger the Flask route
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            })
-            .then(response => {
-                // On successful logout, redirect to the login page
-                window.location.href = '/';  //  login page
-            })
-            .catch(error => {
-                console.error('Logout failed:', error);
-                alert('Failed to log out. Please try again.');
-            });
-        });
-    }
-    
+ 
 
     // Dark mode functionality
     function enableDarkMode() {
@@ -103,22 +37,19 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Display active tickets
+    // Display unassigned tickets
     function displayActiveTickets() {
         ticketList.innerHTML = ''; // Clear existing tickets
-
-        // Fetch the active tickets (archived = false)
-        fetch('http://127.0.0.1:5000/api/tickets')
+    
+        fetch('http://127.0.0.1:5000/api/tickets/unassigned')  // Fetch unassigned tickets
             .then(response => response.json())
             .then(tickets => {
-                const activeTickets = tickets.filter(ticket => !ticket.archived); // Filter for active tickets
-                if (activeTickets.length === 0) {
-                    ticketList.innerHTML = '<p>No active tickets available.</p>';
+                if (tickets.length === 0) {
+                    ticketList.innerHTML = '<p>No unassigned tickets available.</p>';
                     return;
                 }
-
-                // Loop through the active tickets and display them
-                activeTickets.forEach(ticket => {
+    
+                tickets.forEach(ticket => {
                     const ticketDiv = document.createElement('div');
                     ticketDiv.className = 'ticket-box col-md-4';
                     ticketDiv.innerHTML = `
@@ -126,6 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <p>Employee: ${ticket.employee}</p>
                         <p><strong>Priority:</strong> <span class="priority-badge">${ticket.priority}</span></p>
                     `;
+                    // Click event to open ticket modal
                     ticketDiv.addEventListener('click', () => openTicketFromActive(ticket));
                     ticketList.appendChild(ticketDiv);
 
@@ -135,10 +67,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 });
             })
-            .catch(error => {
-                console.error('Error fetching active tickets:', error);
-            });
+            .catch(error => console.error('Error fetching unassigned tickets:', error));
     }
+    
 
     // Function to archive a ticket
     function archiveTicket(ticket) {
@@ -161,10 +92,44 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Open ticket details in a modal (for active tickets)
+    function assignTicketPrompt(ticketId) {
+        const assignedUser = prompt("Enter the username to assign this ticket to:");
+    
+        if (!assignedUser) {
+            alert("Assignment canceled. No user was selected.");
+            return;
+        }
+    
+        assignTicket(ticketId, assignedUser); // Pass the username instead of prompting again
+    }    
+    
+    function assignTicket(ticketId, username) { // Accept username as a parameter
+        fetch(`/api/tickets/${ticketId}/assign`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username: username }) // Use the provided username
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert("Error: " + data.error);
+            } else {
+                alert("Ticket assigned successfully to " + username);
+                location.reload(); // Refresh to reflect changes
+            }
+        })
+        .catch(error => console.error("Error assigning ticket:", error));
+    }
+
+
+    // Open ticket details in a modal
     function openTicketFromActive(ticket) {
         const ticketDetailsContent = document.getElementById('ticketDetailsContent');
         const ticketDetailsModalLabel = document.getElementById('ticketDetailsModalLabel');
+        const modalFooter = document.getElementById('ticketDetailsFooter');
+
         ticketDetailsModalLabel.innerHTML = `<p>Ticket #${ticket.id}: ${ticket.title}</p>`;
         ticketDetailsContent.innerHTML = `
             <p><strong>Employee:</strong> ${ticket.employee}</p>
@@ -180,20 +145,36 @@ document.addEventListener('DOMContentLoaded', function () {
         const modal = new bootstrap.Modal(document.getElementById('ticketDetailsModal'));
         modal.show();
 
-        // Show the "Archive Ticket" button for active tickets
-        const archiveButton = document.getElementById('archiveTicketButton');
-        archiveButton.style.display = 'block'; // Make sure the button is visible
-        archiveButton.innerText = 'Archive Ticket'; // Set button text for archiving
+        // Reset footer before adding buttons
+        modalFooter.innerHTML = '';
 
-        // Archive ticket when the button is clicked
-        archiveButton.onclick = function () {
-            archiveTicket(ticket); // Call the function to archive the ticket
+        // Add "Close" button
+        const closeButton = document.createElement('button');
+        closeButton.className = 'btn btn-secondary';
+        closeButton.setAttribute('data-bs-dismiss', 'modal');
+        closeButton.textContent = 'Close';
+        modalFooter.appendChild(closeButton);
 
-            // Close the modal after archiving
-            const modalElement = document.getElementById('ticketDetailsModal');
-            const modalInstance = bootstrap.Modal.getInstance(modalElement); // Get the modal instance
-            modalInstance.hide();
-        };
+        // Add "Archive Ticket" button
+        const archiveButton = document.createElement('button');
+        archiveButton.className = 'btn btn-primary';
+        archiveButton.id = 'archiveTicketButton';
+        archiveButton.textContent = 'Archive Ticket';
+        archiveButton.addEventListener('click', function () {
+            archiveTicket(ticket);
+            bootstrap.Modal.getInstance(document.getElementById('ticketDetailsModal')).hide();
+        });
+        modalFooter.appendChild(archiveButton);
+
+        // Add "Assign Ticket" button
+        const assignButton = document.createElement('button');
+        assignButton.className = 'btn btn-success';
+        assignButton.id = 'assignTicketButton';
+        assignButton.textContent = 'Assign Ticket';
+        assignButton.addEventListener('click', function () {
+            assignTicketPrompt(ticket.id);
+        });
+        modalFooter.appendChild(assignButton);
 
         // Apply dark mode styling for the modal dynamically
         const modalContent = document.getElementById('ticketDetailsModalContent');
@@ -280,7 +261,27 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(error => console.error('Error fetching employee info:', error));
     });
 
-    // Initial display of active tickets (on page load)
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const unassignedTicketsBtn = document.getElementById('unassignedTicketsBtn');
+        const myTicketsBtn = document.getElementById('myTicketsBtn');
+    
+        if (unassignedTicketsBtn) {
+            unassignedTicketsBtn.addEventListener('click', function () {
+                displayActiveTickets();  // Show unassigned tickets
+            });
+        }
+    
+        if (myTicketsBtn) {
+            myTicketsBtn.addEventListener('click', function () {
+                displayMyTickets();  // Show tickets assigned to the logged-in user
+            });
+        }
+    
+    });
+    
+
+    // Initial display of unassigned tickets 
     if (ticketList) {
         displayActiveTickets();
     }

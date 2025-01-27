@@ -24,11 +24,12 @@ function searchTickets() {
           modalTitle.textContent = `Ticket #${ticket.id} - ${ticket.title}`;
           modalBody.innerHTML = `
               <p><strong>Staff Number:</strong> ${ticket.staff_number}</p>
-              <p><strong>User Name:</strong> ${ticket.user_name}</p>
-              <p><strong>User Email:</strong> ${ticket.user_email}</p>
+              <p><strong>User Name:</strong> ${ticket.employee}</p>
+              <p><strong>User Email:</strong> ${ticket.email}</p>
               <p><strong>Phone Number:</strong> ${ticket.phone_number}</p>
               <p><strong>Location:</strong> ${ticket.location}</p>
-              <p><strong>Description:</strong> ${ticket.description}</p>                       
+              <p><strong>Description:</strong> ${ticket.description}</p>  
+              <p><strong>Assigned to:</strong> ${ticket.assigned_username || 'Unassigned'}</p> <!-- If no assignment, display 'Unassigned' -->                    
           `;
 
           // Show the modal

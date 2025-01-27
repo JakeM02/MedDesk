@@ -4,25 +4,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const logoutButton = document.getElementById('logoutButton');
     const navbar = document.getElementById('navbar');
 
-    //log out
-    if (logoutButton) {
-        logoutButton.addEventListener('click', function () {
-            fetch('/logout', {
-                method: 'POST',  // Use POST method to trigger the Flask route
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            })
-            .then(response => {
-                // On successful logout, redirect to the login page
-                window.location.href = '/';  //  login page
-            })
-            .catch(error => {
-                console.error('Logout failed:', error);
-                alert('Failed to log out. Please try again.');
-            });
-        });
-    }
 
     // Dark mode functionality
     function enableDarkMode() {

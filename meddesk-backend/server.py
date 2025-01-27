@@ -49,6 +49,7 @@ def create_app():
         description = db.Column(db.Text, nullable=False)
         archived = db.Column(db.Boolean, default=False)
         priority = db.Column(db.String(20), nullable=False, default="Medium")
+        assigned_username = db.Column(db.String(50),db.ForeignKey('users.username'), nullable=True)
 
         #compatible with jsonify to structure data
         def to_dict(self):
@@ -64,6 +65,7 @@ def create_app():
                 "description": self.description,
                 "archived": self.archived,
                 "priority": self.priority,
+                "assigned_username": self.assigned_username
             }
 
     # define employee model
@@ -124,6 +126,11 @@ def create_app():
     def archive():
         return render_template('archive.html')
     
+    @app.route('/my_tickets')
+    def my_tickets():
+        return render_template('my_tickets.html')
+
+    
     @app.route('/admin/dashboard')
     @admin_required  # Only allow access if the user is an admin
     def admin_dashboard():
@@ -134,6 +141,11 @@ def create_app():
     @admin_required  # Ensure only admin can access
     def admin_archive():
         return render_template('admin_archive.html')
+    
+    @app.route('/admin/admin_tickets', methods=['GET'])
+    @admin_required  # Ensure only admin can access
+    def admin_tickets():
+        return render_template('admin_tickets.html')
     
 
     #Users
@@ -275,6 +287,32 @@ def create_app():
         """Fetch archived tickets (archived = True)."""
         tickets = db.session.query(Ticket).filter_by(archived=True).all()
         return jsonify([ticket.to_dict() for ticket in tickets])
+    
+    @app.route('/api/tickets/unassigned', methods=['GET'])
+    def get_unassigned_tickets():
+        """Fetch all unassigned tickets."""
+        tickets = Ticket.query.filter_by(assigned_username=None, archived=False).order_by(Ticket.id).all()
+        return jsonify([ticket.to_dict() for ticket in tickets])
+    
+    @app.route('/api/tickets/my', methods=['GET'])
+    def get_my_tickets():
+        """Fetch tickets assigned to the logged-in user (Session-Based)"""
+        if 'user_id' not in session:
+            return jsonify({"error": "Unauthorized"}), 403  # Return 403 if session is missing
+
+        user_id = session['user_id']  # Extract user ID from session
+
+        # Fetch user data 
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        # compare  assigned_username with user.username
+        tickets = Ticket.query.filter_by(assigned_username=user.username).all()
+
+        return jsonify([ticket.to_dict() for ticket in tickets])
+
+
 
     @app.route('/api/tickets/<int:id>/archive', methods=['POST', 'DELETE'])
     def toggle_ticket_archive(id):
@@ -283,6 +321,7 @@ def create_app():
         if request.method == 'POST':
             # Archive the ticket
             ticket.archived = True
+            ticket.assigned_username = None  # Unassign the user
         elif request.method == 'DELETE':
             # Restore the ticket
             ticket.archived = False
@@ -293,6 +332,30 @@ def create_app():
         except Exception as e:
             db.session.rollback()  # Rollback in case of error
             return jsonify({"error": "Failed to update ticket archive status", "details": str(e)}), 500
+
+    @app.route('/api/tickets/<int:ticket_id>/assign', methods=['POST'])
+    def assign_ticket(ticket_id):
+        """Assign a ticket to a user using their username."""
+        data = request.json
+        print("Received data:", data)  # Debugging
+
+        username = data.get("username")  #  Get username from request
+        if not username:
+            return jsonify({"error": "Username is required"}), 400
+
+        ticket = Ticket.query.get(ticket_id)
+        if not ticket:
+            return jsonify({"error": "Ticket not found"}), 404
+
+        print(f"Assigning ticket {ticket_id} to {username}") 
+
+        ticket.assigned_username = username  # Assign ticket to the username
+        db.session.commit()
+
+        updated_ticket = Ticket.query.get(ticket_id)
+        print(f"Updated ticket data: {updated_ticket.assigned_username}")
+
+        return jsonify({"message": "Ticket assigned successfully", "ticket": ticket.to_dict()}), 200
 
 
     #search employee by staff number
@@ -337,7 +400,8 @@ def create_app():
                 "staff_number": ticket.staff_number,
                 "phone_number": ticket.phone_number,
                 "description": ticket.description,
-                "archived": ticket.archived
+                "archived": ticket.archived,
+                "assigned_username": ticket.assigned_username
             }
             for ticket in search_results
         ])
