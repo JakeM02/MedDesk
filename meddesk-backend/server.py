@@ -8,12 +8,14 @@ import os # OS functions (generating random key)
 # Initialize SQLAlchemy
 db = SQLAlchemy()
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 def create_app():
     """Create and configure the Flask app."""
     app = Flask(
         __name__,
-        template_folder="C:/Users/jake/Desktop/MedDesk/meddesk-frontend/assets/templates",
-        static_folder="C:/Users/jake/Desktop/MedDesk/meddesk-frontend/assets")
+        template_folder=os.path.join(BASE_DIR, '../meddesk-frontend/assets/templates'),
+        static_folder=os.path.join(BASE_DIR, '../meddesk-frontend/assets'))
 
     CORS(app)  # Enable CORS for all routes
 
