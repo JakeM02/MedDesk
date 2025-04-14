@@ -20,7 +20,7 @@ def create_app():
     CORS(app)  # Enable CORS for all routes
 
     # Database configuration using pg8000 driver
-    DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+pg8000://meddeskadmin:admin@localhost/meddesk")
+    DATABASE_URL = os.getenv("DATABASE_URL")
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1) # avoids issues with heroku and SQLAlchemy
 
