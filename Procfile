@@ -1,1 +1,1 @@
-web: gunicorn "server:create_app()"
+web: gunicorn "meddesk-backend.server:create_app()"
