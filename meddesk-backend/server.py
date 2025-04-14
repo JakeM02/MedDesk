@@ -18,7 +18,11 @@ def create_app():
     CORS(app)  # Enable CORS for all routes
 
     # Database configuration using pg8000 driver
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+pg8000://meddeskadmin:admin@localhost/meddesk'
+    DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+pg8000://meddeskadmin:admin@localhost/meddesk")
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1) # avoids issues with heroku and SQLAlchemy
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False #disabled tracking changes to avoid warnings and performance
 
     # generates secret key for sessions
