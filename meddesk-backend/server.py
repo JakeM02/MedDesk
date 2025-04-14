@@ -30,6 +30,7 @@ def create_app():
     #Define User model
     class User(db.Model):
         __tablename__ = 'users'
+        __table_args__ = {'extend_existing': True}
         id = db.Column(db.Integer, primary_key=True)
         username = db.Column(db.String(150), unique=True, nullable=False)
         password_hash = db.Column(db.String(200), nullable=False)
@@ -39,6 +40,7 @@ def create_app():
     # Define Ticket model
     class Ticket(db.Model):
         __tablename__ = 'ticket'
+        __table_args__ = {'extend_existing': True}
         id = db.Column(db.Integer, primary_key=True)
         title = db.Column(db.String(32), nullable=False)
         employee = db.Column(db.String(200), nullable=False)
@@ -71,6 +73,7 @@ def create_app():
     # define employee model
     class Employee(db.Model):
         __tablename__ = 'employees'
+        __table_args__ = {'extend_existing': True}
         id = db.Column(db.Integer, primary_key=True)
         name = db.Column(db.String(100), nullable=False)
         email = db.Column(db.String(100), unique=True, nullable=False)
@@ -371,7 +374,7 @@ def create_app():
             })
         return jsonify({"error": "Employee not found"}), 404
     
-    #search tickets by id title name or location
+    #search tickets by id 
     @app.route('/api/tickets/search', methods=['GET'])
     def search_tickets():
         query = request.args.get('query', '').strip()
