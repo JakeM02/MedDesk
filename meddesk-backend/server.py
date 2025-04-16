@@ -33,7 +33,7 @@ def create_app():
 
 
     # generates secret key for sessions
-    app.config['SECRET_KEY'] = os.urandom(24)
+    app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
 
     # Initialize the SQLAlchemy object
     db.init_app(app)

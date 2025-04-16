@@ -27,10 +27,16 @@ jobs:
         run: |
           python -m pytest tests/tests.py
 
+      - name: Set Heroku config vars
+        run: |
+          heroku config:set FLASK_SECRET_KEY=${{ secrets.FLASK_SECRET_KEY }} --app ${{ secrets.HEROKU_APP_NAME }}
+
+
       - name: Deploy to Heroku
         if: success()  # only run if tests pass
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
         run: |
           git remote add heroku https://git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
           git push heroku main -f
