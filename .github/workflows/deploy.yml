@@ -48,5 +48,6 @@ jobs:
       - name: Push to Heroku
         if: success()
         run: |
-          heroku git:remote --app ${{ secrets.HEROKU_APP_NAME }}
+          GIT_URL="https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git"
+          git remote add heroku "$GIT_URL" || git remote set-url heroku "$GIT_URL"
           git push heroku HEAD:main --force
