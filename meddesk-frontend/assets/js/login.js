@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         // Send the POST request to Flask server
-        fetch('http://127.0.0.1:5000/api/login', {
+        fetch('/api/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
