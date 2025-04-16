@@ -39,6 +39,10 @@ jobs:
     
       - name: Set Heroku config vars
         if: success()
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           heroku config:set FLASK_SECRET_KEY="$FLASK_SECRET_KEY" \
                             DATABASE_URL="$DATABASE_URL" \
