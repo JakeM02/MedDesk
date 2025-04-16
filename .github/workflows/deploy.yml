@@ -8,6 +8,9 @@ on:
 jobs:
   test-and-deploy:
     runs-on: ubuntu-latest
+    env:                                  
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
 
     steps:
       - name: Checkout repo
@@ -23,20 +26,30 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r meddesk-backend/requirements.txt
 
-      #- name: Run Pytest
-        #run: |
-          #python -m pytest tests/tests.py
-
-      #- name: Set Heroku config vars
-        #run: |
-          #heroku config:set FLASK_SECRET_KEY=${{ secrets.FLASK_SECRET_KEY }} --app ${{ secrets.HEROKU_APP_NAME }}
-
-
-      - name: Deploy to Heroku
-        if: success()  # only run if tests pass
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-          FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
+      - name: Run Pytest
         run: |
-          git remote add heroku https://git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
-          git push heroku main -f
+          python -m pytest tests/tests.py
+
+          # if tests pass it deploys below
+
+      - name: Install Heroku CLI
+        if: success()
+        run: |
+          curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
+    
+      - name: Set Heroku config vars
+        if: success()
+        run: |
+          heroku config:set FLASK_SECRET_KEY="$FLASK_SECRET_KEY" \
+                            DATABASE_URL="$DATABASE_URL" \
+                            --app ${{ secrets.HEROKU_APP_NAME }}
+          env:
+            HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+    
+      - name: Push to Heroku
+        if: success()
+        run: |
+          heroku git:remote --app ${{ secrets.HEROKU_APP_NAME }}
+          git push heroku HEAD:main --force
+        env:
+            HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}

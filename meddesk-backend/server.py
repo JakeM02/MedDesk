@@ -21,6 +21,9 @@ def create_app():
 
     # Database configuration using pg8000 driver
     DATABASE_URL = os.getenv("DATABASE_URL")
+    if not DATABASE_URL:
+        raise RuntimeError("DATABASE_URL env‑var not set – check CI or local .env")
+
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1) # avoids issues with heroku and SQLAlchemy
 
