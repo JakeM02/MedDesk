@@ -11,6 +11,7 @@ jobs:
     env:                                  
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
+      HEROKU_API_KEY:   ${{ secrets.HEROKU_API_KEY }}
 
     steps:
       - name: Checkout repo
@@ -39,21 +40,13 @@ jobs:
     
       - name: Set Heroku config vars
         if: success()
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-          FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           heroku config:set FLASK_SECRET_KEY="$FLASK_SECRET_KEY" \
                             DATABASE_URL="$DATABASE_URL" \
                             --app ${{ secrets.HEROKU_APP_NAME }}
-          env:
-            HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-    
+      
       - name: Push to Heroku
         if: success()
         run: |
           heroku git:remote --app ${{ secrets.HEROKU_APP_NAME }}
           git push heroku HEAD:main --force
-        env:
-            HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
