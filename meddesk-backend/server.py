@@ -27,6 +27,11 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False #disabled tracking changes to avoid warnings and performance
 
+    app.config['SESSION_COOKIE_SECURE'] = True  # Ensures cookie only sent over HTTPS
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Allows navigation from login POST
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+
+
     # generates secret key for sessions
     app.config['SECRET_KEY'] = os.urandom(24)
 
