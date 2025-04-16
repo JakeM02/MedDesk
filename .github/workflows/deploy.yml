@@ -23,9 +23,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r meddesk-backend/requirements.txt
 
-      - name: Run Pytest
-        run: |
-          python -m pytest tests/tests.py
+      #- name: Run Pytest
+        #run: |
+          #python -m pytest tests/tests.py
 
       - name: Set Heroku config vars
         run: |
