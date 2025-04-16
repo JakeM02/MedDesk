@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
             };
 
             // Send the data to the backend
-            fetch('http://127.0.0.1:5000/api/admin/users', {
+            fetch('/api/admin/users', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ticketList.innerHTML = ''; // Clear existing tickets
 
         // Fetch the archived tickets (archived = true)
-        fetch('http://127.0.0.1:5000/api/tickets/archived')
+        fetch('/api/tickets/archived')
             .then(response => response.json())
             .then(tickets => {
                 if (tickets.length === 0) {
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const ticketDetailsContent = document.getElementById('ticketDetailsContent');
         ticketDetailsContent.innerHTML = '';  // Clear previous details
 
-        fetch(`http://127.0.0.1:5000/api/tickets/${ticket.id}`)
+        fetch(`/api/tickets/${ticket.id}`)
             .then(response => response.json())
             .then(data => {
                 ticketDetailsContent.innerHTML = `
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Function to restore a ticket
     function restoreTicket(ticket) {
-        fetch(`http://127.0.0.1:5000/api/tickets/${ticket.id}/archive`, {
+        fetch(`/api/tickets/${ticket.id}/archive`, {
             method: 'DELETE'  // Use DELETE to restore the ticket
         })
         .then(response => {

@@ -39,7 +39,7 @@ if (darkModeToggle) {
     const ticketList = document.getElementById("ticketList");
     ticketList.innerHTML = "";
 
-    fetch("http://127.0.0.1:5000/api/tickets/my", {
+    fetch("/api/tickets/my", {
         method: "GET",
         credentials: "include",  // Sends session cookie with request
     })
@@ -83,7 +83,7 @@ if (darkModeToggle) {
 
     // Function to archive a ticket and unassign it
     function archiveMyTicket(ticket) {
-        fetch(`http://127.0.0.1:5000/api/tickets/${ticket.id}/archive`, {
+        fetch(`/api/tickets/${ticket.id}/archive`, {
             method: 'POST',  // Use POST to archive the ticket
             headers: {
                 'Content-Type': 'application/json'

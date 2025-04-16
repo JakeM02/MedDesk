@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function displayActiveTickets() {
         ticketList.innerHTML = ''; // Clear existing tickets
     
-        fetch('http://127.0.0.1:5000/api/tickets/unassigned')  // Fetch unassigned tickets
+        fetch('/api/tickets/unassigned')  // Fetch unassigned tickets
             .then(response => response.json())
             .then(tickets => {
                 if (tickets.length === 0) {
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Function to archive a ticket
     function archiveTicket(ticket) {
-        fetch(`http://127.0.0.1:5000/api/tickets/${ticket.id}/archive`, {
+        fetch(`/api/tickets/${ticket.id}/archive`, {
             method: 'POST', // Use POST to archive the ticket
             headers: {
                 "Content-Type": "application/json"
@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }    
     
     function assignTicket(ticketId, username) { // Accept username as a parameter
-        fetch(`http://127.0.0.1:5000/api/tickets/${ticketId}/assign`, {
+        fetch(`/api/tickets/${ticketId}/assign`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -272,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 };
         
                 // Send the new ticket to the backend using POST
-                fetch('http://127.0.0.1:5000/api/tickets', {
+                fetch('/api/tickets', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -335,8 +335,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     
     });
-    
-
 
     // Initial display of active tickets (on page load)
     if (ticketList) {
