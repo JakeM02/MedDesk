@@ -375,7 +375,7 @@ def create_app():
     #search employee by staff number
     @app.route('/api/employees/<string:staff_number>', methods=['GET'])
     def get_employee_info(staff_number):
-        employee = Employee.query.filter_by(staff_number=int(staff_number)).first()
+        employee = Employee.query.filter_by(staff_number=staff_number).first()
         if employee:
             return jsonify({
                 "name": employee.name,
