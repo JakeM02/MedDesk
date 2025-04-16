@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('User Data:', userData); // Debugging
 
             // Send the data to the backend using fetch
-            fetch('http://127.0.0.1:5000/api/admin/users', {
+            fetch('/api/admin/users', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
