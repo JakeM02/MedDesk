@@ -8,6 +8,13 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
+        // Close the ticket details modal first
+        const ticketDetailsModal = document.getElementById('ticketDetailsModal');
+        const detailsInstance = bootstrap.Modal.getInstance(ticketDetailsModal);
+        if (detailsInstance) {
+            detailsInstance.hide();
+        }
+
           fetch(`/api/tickets/${ticketId}`)
               .then(res => res.json())
               .then(ticket => {
@@ -19,12 +26,10 @@ document.addEventListener('DOMContentLoaded', function () {
                   document.getElementById('location').value = ticket.location || '';
                   document.getElementById('issueTitle').value = ticket.title || '';
                   document.getElementById('issueDescription').value = ticket.description || '';
-                  document.getElementById('priority').value = ticket.priority || 'Medium';
-
-                  // Add a flag so the "save" button knows we're editing
+                  document.getElementById('priority').value = ticket.priority || 'Medium';                
                   document.getElementById('saveTicketButton').dataset.editing = ticketId;
 
-                  // Show the create modal (used as an edit form now)
+                  // Show the create modal
                   const editModal = new bootstrap.Modal(document.getElementById('createTicketModal'));
                   editModal.show();
               })
