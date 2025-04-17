@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const navbar = document.getElementById('navbar');
  
 
+    let currentlyEditingTicketId = null; 
+
     // Dark mode functionality
     function enableDarkMode() {
         document.body.classList.add('dark-mode');
@@ -221,9 +223,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     priority: priority
                 };
         
-                // Send the new ticket to the backend using POST
-                fetch('/api/tickets', {
-                    method: 'POST',
+                const url = currentlyEditingTicketId 
+                    ? `/api/tickets/${currentlyEditingTicketId}` 
+                    : '/api/tickets';
+        
+                const method = currentlyEditingTicketId ? 'PUT' : 'POST';
+        
+                fetch(url, {
+                    method: method,
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -231,23 +238,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
                 .then(response => response.json())
                 .then(data => {
-                    // Refresh the tickets list after adding the new ticket
-                    displayActiveTickets();
+                    displayActiveTickets();  // Refresh the tickets list
         
-                    // Hide the modal after successful creation
                     const modal = bootstrap.Modal.getInstance(document.getElementById('createTicketModal'));
                     modal.hide();
         
-                    // Reset the form
                     document.getElementById('ticketForm').reset();
+                    currentlyEditingTicketId = null;  // Reset edit mode
                 })
                 .catch(error => {
-                    console.error('Error adding ticket:', error);
+                    console.error(`Error ${currentlyEditingTicketId ? 'editing' : 'creating'} ticket:`, error);
                 });
             } else {
                 alert('Please fill in all fields.');
             }
-        });
+        });      
     }
 
     //listener for  staffnumber
