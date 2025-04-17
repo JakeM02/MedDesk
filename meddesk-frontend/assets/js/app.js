@@ -108,25 +108,18 @@ document.addEventListener('DOMContentLoaded', function () {
     function assignTicket(ticketId, username) { // Accept username as a parameter
         fetch(`/api/tickets/${ticketId}/assign`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ username: username }) // Use the provided username
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                alert("Error: " + data.error);
-            } else {
-                alert("Ticket assigned successfully to " + username);
-                location.reload(); // Refresh to reflect changes
-            }
-        })
-        .catch(error => console.error("Error assigning ticket:", error));
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) return alert("Error: " + data.error);
+                alert("Ticket assigned to " + username);
+                location.reload();
+            })
+            .catch(err => console.error("Error assigning ticket:", err));
     }
 
-
-    // Open ticket details in a modal
     function openTicketFromActive(ticket) {
         const ticketDetailsContent = document.getElementById('ticketDetailsContent');
         const ticketDetailsModalLabel = document.getElementById('ticketDetailsModalLabel');
@@ -146,12 +139,11 @@ document.addEventListener('DOMContentLoaded', function () {
         // Reset footer before adding buttons
         modalFooter.innerHTML = '';
 
-        modalFooter.appendChild(Object.assign(document.createElement('button'), {
-            className: 'btn btn-secondary',
-            textContent: 'Close',
-            type: 'button',
-            dataset: { bsDismiss: 'modal' }
-        }));
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'btn btn-secondary';
+        closeBtn.textContent = 'Close';
+        closeBtn.setAttribute('data-bs-dismiss', 'modal');
+        modalFooter.appendChild(closeBtn);
 
         const archiveBtn = document.createElement('button');
         archiveBtn.className = 'btn btn-primary';
@@ -165,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Add "Edit" button
         const editButton = document.createElement('button');
-        editButton.classList.add('btn', 'btn-warning', 'editTicketButton');
+        editButton.className = 'btn btn-warning editTicketButton';
         editButton.textContent = 'Edit';
         editButton.dataset.ticketId = ticket.id; 
         modalFooter.appendChild(editButton);
@@ -193,10 +185,71 @@ document.addEventListener('DOMContentLoaded', function () {
         createTicketButton.addEventListener('click', () => {
             currentlyEditingTicketId = null;
             document.getElementById('ticketForm').reset();
-            const modal = new bootstrap.Modal(document.getElementById('createTicketModal'));
-            modal.show();
+            new bootstrap.Modal(document.getElementById('createTicketModal')).show();
         });
     }
+
+    if (saveTicketButton) {
+        saveTicketButton.addEventListener('click', () => {
+            const payload = {
+                employee: document.getElementById('userName').value,
+                staff_number: document.getElementById('staffNumber').value,
+                phone_number: document.getElementById('phoneNumber').value,
+                location: document.getElementById('location').value,
+                title: document.getElementById('issueTitle').value,
+                description: document.getElementById('issueDescription').value,
+                email: document.getElementById('userEmail').value,
+                priority: document.getElementById('priority').value
+            };
+
+            if (Object.values(payload).some(v => !v)) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            const method = currentlyEditingTicketId ? 'PUT' : 'POST';
+            const url = currentlyEditingTicketId ? `/api/tickets/${currentlyEditingTicketId}` : '/api/tickets';
+
+            fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+                .then(res => res.json())
+                .then(() => {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('createTicketModal'));
+                    modal.hide();
+                    document.getElementById('ticketForm').reset();
+                    currentlyEditingTicketId = null;
+                    displayActiveTickets();
+                })
+                .catch(err => {
+                    console.error('Error saving ticket:', err);
+                    alert('Error saving ticket.');
+                });
+        });
+    }
+
+    document.body.addEventListener('click', function (e) {
+        if (e.target.classList.contains('editTicketButton')) {
+            const id = e.target.dataset.ticketId;
+            fetch(`/api/tickets/${id}`)
+                .then(res => res.json())
+                .then(ticket => {
+                    currentlyEditingTicketId = id;
+                    document.getElementById('userName').value = ticket.employee;
+                    document.getElementById('staffNumber').value = ticket.staff_number;
+                    document.getElementById('phoneNumber').value = ticket.phone_number;
+                    document.getElementById('location').value = ticket.location;
+                    document.getElementById('issueTitle').value = ticket.title;
+                    document.getElementById('issueDescription').value = ticket.description;
+                    document.getElementById('userEmail').value = ticket.email;
+                    document.getElementById('priority').value = ticket.priority;
+                    bootstrap.Modal.getInstance(document.getElementById('ticketDetailsModal')).hide();
+                    new bootstrap.Modal(document.getElementById('createTicketModal')).show();
+                });
+        }
+    });
 
     document.getElementById('staffNumber').addEventListener('blur', function () {
         const staffNumber = this.value;
