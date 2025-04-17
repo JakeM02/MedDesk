@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function () {
             archiveTicket(ticket);
             bootstrap.Modal.getInstance(document.getElementById('ticketDetailsModal')).hide();
         });
-        modalFooter.appendChild(archiveButton);
+        modalFooter.appendChild(archiveBtn);
 
         // Add "Edit" button
         const editButton = document.createElement('button');
