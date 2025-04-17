@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
         
         // Reset footer before adding buttons
-        footer.innerHTML = '';
+        modalFooter.innerHTML = '';
 
         footer.appendChild(Object.assign(document.createElement('button'), {
             className: 'btn btn-secondary',
