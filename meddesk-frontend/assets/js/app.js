@@ -142,27 +142,22 @@ document.addEventListener('DOMContentLoaded', function () {
             <p><strong>Priority:</strong> ${ticket.priority || 'N/A'}</p>
             <p><strong>Description:</strong> ${ticket.description}</p>
         `;
-
-        // Initialize and show the modal
-        const modal = new bootstrap.Modal(document.getElementById('ticketDetailsModal'));
-        modal.show();
-
+        
         // Reset footer before adding buttons
-        modalFooter.innerHTML = '';
+        footer.innerHTML = '';
 
-        // Add "Close" button
-        const closeButton = document.createElement('button');
-        closeButton.className = 'btn btn-secondary';
-        closeButton.setAttribute('data-bs-dismiss', 'modal');
-        closeButton.textContent = 'Close';
-        modalFooter.appendChild(closeButton);
+        footer.appendChild(Object.assign(document.createElement('button'), {
+            className: 'btn btn-secondary',
+            textContent: 'Close',
+            type: 'button',
+            dataset: { bsDismiss: 'modal' }
+        }));
 
-        // Add "Archive Ticket" button
-        const archiveButton = document.createElement('button');
-        archiveButton.className = 'btn btn-primary';
-        archiveButton.id = 'archiveTicketButton';
-        archiveButton.textContent = 'Archive Ticket';
-        archiveButton.addEventListener('click', function () {
+        const archiveBtn = document.createElement('button');
+        archiveBtn.className = 'btn btn-primary';
+        archiveBtn.id = 'archiveTicketButton';
+        archiveBtn.textContent = 'Archive Ticket';
+        archiveBtn.addEventListener('click', () => {
             archiveTicket(ticket);
             bootstrap.Modal.getInstance(document.getElementById('ticketDetailsModal')).hide();
         });
@@ -194,68 +189,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Ticket creation functionality
-    if (createTicketButton && saveTicketButton) {
-        createTicketButton.addEventListener('click', function () {
+    if (createTicketButton) {
+        createTicketButton.addEventListener('click', () => {
+            currentlyEditingTicketId = null;
+            document.getElementById('ticketForm').reset();
             const modal = new bootstrap.Modal(document.getElementById('createTicketModal'));
             modal.show();
         });
-
-        saveTicketButton.addEventListener('click', function () {
-            const userName = document.getElementById('userName').value;
-            const staffNumber = document.getElementById('staffNumber').value;
-            const phoneNumber = document.getElementById('phoneNumber').value;
-            const location = document.getElementById('location').value;
-            const issueTitle = document.getElementById('issueTitle').value;
-            const issueDescription = document.getElementById('issueDescription').value;
-            const userEmail = document.getElementById('userEmail').value;
-            const priority = document.getElementById('priority').value;
-        
-            if (userName && staffNumber && phoneNumber && location && issueTitle && issueDescription && userEmail && priority) {
-                const newTicket = {
-                    employee: userName,
-                    staff_number: staffNumber,
-                    phone_number: phoneNumber,
-                    location: location,
-                    title: issueTitle,
-                    description: issueDescription,
-                    email: userEmail,
-                    priority: priority
-                };
-        
-                const url = currentlyEditingTicketId 
-                    ? `/api/tickets/${currentlyEditingTicketId}` 
-                    : '/api/tickets';
-        
-                const method = currentlyEditingTicketId ? 'PUT' : 'POST';
-        
-                fetch(url, {
-                    method: method,
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(newTicket)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    displayActiveTickets();  // Refresh the tickets list
-        
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('createTicketModal'));
-                    modal.hide();
-        
-                    document.getElementById('ticketForm').reset();
-                    currentlyEditingTicketId = null;  // Reset edit mode
-                })
-                .catch(error => {
-                    console.error(`Error ${currentlyEditingTicketId ? 'editing' : 'creating'} ticket:`, error);
-                });
-            } else {
-                alert('Please fill in all fields.');
-            }
-        });      
     }
 
-    //listener for  staffnumber
     document.getElementById('staffNumber').addEventListener('blur', function () {
         const staffNumber = this.value;
         fetch(`/api/employees/${staffNumber}`)
@@ -273,27 +215,5 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(error => console.error('Error fetching employee info:', error));
     });
 
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const unassignedTicketsBtn = document.getElementById('unassignedTicketsBtn');
-        const myTicketsBtn = document.getElementById('myTicketsBtn');
-    
-        if (unassignedTicketsBtn) {
-            unassignedTicketsBtn.addEventListener('click', function () {
-                displayActiveTickets();  // Show unassigned tickets
-            });
-        }
-    
-        if (myTicketsBtn) {
-            myTicketsBtn.addEventListener('click', function () {
-                displayMyTickets();  // Show tickets assigned to the logged-in user
-            });
-        }
-    
-    });
-    
-    // Initial display of unassigned tickets 
-    if (ticketList) {
-        displayActiveTickets();
-    }
+    if (ticketList) displayActiveTickets();
 });

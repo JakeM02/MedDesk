@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
+  const saveBtn = document.getElementById('saveTicketButton');
+
+  // Handle Edit button click
   document.body.addEventListener('click', function (event) {
     if (event.target && event.target.classList.contains('editTicketButton')) {
         const ticketId = event.target.dataset.ticketId;
@@ -10,15 +13,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Close the ticket details modal first
         const ticketDetailsModal = document.getElementById('ticketDetailsModal');
-        const detailsInstance = bootstrap.Modal.getInstance(ticketDetailsModal);
-        if (detailsInstance) {
-            detailsInstance.hide();
-        }
+        const modalInstance = bootstrap.Modal.getInstance(ticketDetailsModal);
+        if (modalInstance) modalInstance.hide();
 
+        // Fetch ticket data to prefill the form
           fetch(`/api/tickets/${ticketId}`)
               .then(res => res.json())
               .then(ticket => {
-                  // Pre-fill the create form with existing ticket data
+                  // Fill the form with current ticket data
                   document.getElementById('staffNumber').value = ticket.staff_number || '';
                   document.getElementById('userName').value = ticket.employee || '';
                   document.getElementById('userEmail').value = ticket.email || '';
@@ -26,22 +28,23 @@ document.addEventListener('DOMContentLoaded', function () {
                   document.getElementById('location').value = ticket.location || '';
                   document.getElementById('issueTitle').value = ticket.title || '';
                   document.getElementById('issueDescription').value = ticket.description || '';
-                  document.getElementById('priority').value = ticket.priority || 'Medium';                
-                  document.getElementById('saveTicketButton').dataset.editing = ticketId;
+                  document.getElementById('priority').value = ticket.priority || 'Medium';
 
-                  // Show the create modal
+                  // Set editing state
+                  saveBtn.dataset.editing = ticket.id;
+
+                  // Show the create/edit modal
                   const editModal = new bootstrap.Modal(document.getElementById('createTicketModal'));
                   editModal.show();
               })
               .catch(err => {
-                  console.error("Failed to load ticket data for editing:", err);
-                  alert("Failed to load ticket for editing.");
+                  console.error("Failed to load ticket data:", err);
+                  alert("Could not load ticket for editing.");
               });
       }
   });
 
-  // Override save behavior if editing
-  const saveBtn = document.getElementById('saveTicketButton');
+  // Save or Update ticket
   if (saveBtn) {
       saveBtn.addEventListener('click', function () {
           const editingId = this.dataset.editing;
@@ -68,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function () {
               .then(res => res.json())
               .then(() => {
                   const modal = bootstrap.Modal.getInstance(document.getElementById('createTicketModal'));
-                  modal.hide();
+                  if (modal) modal.hide();
                   document.getElementById('ticketForm').reset();
                   delete saveBtn.dataset.editing;
                   location.reload(); // refresh ticket list
