@@ -107,6 +107,7 @@
                 </div>
                 <div class="modal-footer" id="ticketDetailsFooter">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-warning" id="editTicketButton">Edit</button>
                     <button type="button" class="btn btn-primary" id="archiveTicketButton">Archive Ticket</button>
                 </div>
             </div>
@@ -141,6 +142,41 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal for editing a tickets details -->
+    <div class="modal fade" id="editTicketModal" tabindex="-1" aria-labelledby="editTicketModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content dark-mode">
+            <div class="modal-header">
+              <h5 class="modal-title" id="editTicketModalLabel">Edit Ticket</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form id="editTicketForm">
+                <div class="form-group"><label>Staff Number</label><input type="text" id="editStaffNumber" class="form-control"></div>
+                <div class="form-group"><label>User Name</label><input type="text" id="editUserName" class="form-control"></div>
+                <div class="form-group"><label>Email</label><input type="email" id="editUserEmail" class="form-control"></div>
+                <div class="form-group"><label>Phone Number</label><input type="text" id="editPhoneNumber" class="form-control"></div>
+                <div class="form-group"><label>Location</label><input type="text" id="editLocation" class="form-control"></div>
+                <div class="form-group"><label>Issue Title</label><input type="text" id="editIssueTitle" class="form-control"></div>
+                <div class="form-group"><label>Description</label><textarea id="editIssueDescription" class="form-control"></textarea></div>
+                <div class="form-group"><label>Priority</label>
+                  <select id="editPriority" class="form-control">
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                    <option value="Critical">Critical</option>
+                  </select>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer dark-mode">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-warning" id="editTicketSaveButton">Update Ticket</button>
+            </div>
+          </div>
+        </div>
+      </div>
     
     
         
@@ -151,6 +187,7 @@
             <!--  JS path -->
             <script src="{{ url_for('static', filename='js/admin_app.js') }}"></script>
             <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/edit_ticket.js') }}"></script>
             <!-- search JS -->
             <script src="{{ url_for('static', filename='js/search.js') }}"></script>
         </body>

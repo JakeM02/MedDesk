@@ -373,6 +373,25 @@ def create_app():
         print(f"Updated ticket data: {updated_ticket.assigned_username}")
 
         return jsonify({"message": "Ticket assigned successfully", "ticket": ticket.to_dict()}), 200
+    
+    @app.route('/api/tickets/<int:ticket_id>', methods=['PUT'])
+    def update_ticket(ticket_id):
+        data = request.json
+        ticket = Ticket.query.get(ticket_id)
+        if not ticket:
+            return jsonify({"error": "Ticket not found"}), 404
+
+        ticket.employee = data['employee']
+        ticket.staff_number = data['staff_number']
+        ticket.phone_number = data['phone_number']
+        ticket.location = data['location']
+        ticket.title = data['title']
+        ticket.description = data['description']
+        ticket.email = data['email']
+        ticket.priority = data['priority']
+
+        db.session.commit()
+        return jsonify({"message": "Ticket updated", "ticket": ticket.to_dict()})
 
 
     #search employee by staff number
