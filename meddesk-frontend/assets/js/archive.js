@@ -126,6 +126,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     modalInstance.hide();
                 };
 
+                // Add "Edit" button
+                const editButton = document.createElement('button');
+                editButton.className = 'btn btn-warning editTicketButton';
+                editButton.textContent = 'Edit';
+                editButton.setAttribute('data-ticket-id', ticket.id);
+                modalFooter.appendChild(editButton);
+
                 // Apply dark mode styling for the modal if dark mode is enabled
                 if (document.body.classList.contains('dark-mode')) {
                     document.getElementById('ticketDetailsModalContent').classList.add('dark-mode');

@@ -1,15 +1,12 @@
 document.addEventListener('DOMContentLoaded', function () {
   document.body.addEventListener('click', function (event) {
-      if (event.target && event.target.id === 'editTicketButton') {
-          // Collect ticket ID from modal title or data attribute
-          const modalTitle = document.getElementById('ticketDetailsModalLabel').textContent;
-          const match = modalTitle.match(/Ticket #(\d+)/);
-          const ticketId = match ? match[1] : null;
+    if (event.target && event.target.classList.contains('editTicketButton')) {
+        const ticketId = event.target.dataset.ticketId;
 
-          if (!ticketId) {
-              alert("Ticket ID not found.");
-              return;
-          }
+        if (!ticketId) {
+            alert("No ticket ID found for editing.");
+            return;
+        }
 
           fetch(`/api/tickets/${ticketId}`)
               .then(res => res.json())

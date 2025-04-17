@@ -166,6 +166,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         modalFooter.appendChild(archiveButton);
 
+        // Add "Edit" button
+        const editButton = document.createElement('button');
+        editButton.className = 'btn btn-warning editTicketButton';
+        editButton.textContent = 'Edit';
+        editButton.setAttribute('data-ticket-id', ticket.id);
+        modalFooter.appendChild(editButton);
+
         // Add "Assign Ticket" button
         const assignButton = document.createElement('button');
         assignButton.className = 'btn btn-success';
