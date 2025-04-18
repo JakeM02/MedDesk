@@ -228,7 +228,26 @@ document.addEventListener('DOMContentLoaded', function () {
         editButton.className = 'btn btn-warning editTicketButton';
         editButton.textContent = 'Edit';
         editButton.setAttribute('data-ticket-id', ticket.id);
-        modalFooter.appendChild(editButton);
+        editButton.addEventListener('click', function () {
+            currentlyEditingTicketId = ticket.id;
+        
+            // Prefill the form with the existing ticket info
+            document.getElementById('userName').value = ticket.employee;
+            document.getElementById('staffNumber').value = ticket.staff_number;
+            document.getElementById('phoneNumber').value = ticket.phone_number;
+            document.getElementById('location').value = ticket.location;
+            document.getElementById('issueTitle').value = ticket.title;
+            document.getElementById('issueDescription').value = ticket.description;
+            document.getElementById('userEmail').value = ticket.email;
+            document.getElementById('priority').value = ticket.priority;
+        
+            // Hide ticket details modal
+            bootstrap.Modal.getInstance(document.getElementById('ticketDetailsModal')).hide();
+        
+            // Show the edit modal
+            const editModal = new bootstrap.Modal(document.getElementById('createTicketModal'));
+            editModal.show();
+        });
 
         // Add "Assign Ticket" button
         const assignButton = document.createElement('button');
@@ -278,9 +297,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     priority: priority
                 };
         
-                // Send the new ticket to the backend using POST
-                fetch('/api/tickets', {
-                    method: 'POST',
+                const isEditing = !!currentlyEditingTicketId;
+                const endpoint = isEditing ? `/api/tickets/${currentlyEditingTicketId}` : '/api/tickets';
+                const method = isEditing ? 'PUT' : 'POST';
+        
+                fetch(endpoint, {
+                    method,
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -295,11 +317,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     const modal = bootstrap.Modal.getInstance(document.getElementById('createTicketModal'));
                     modal.hide();
         
-                    // Reset the form
                     document.getElementById('ticketForm').reset();
+                    currentlyEditingTicketId = null; // Reset the edit state
                 })
                 .catch(error => {
-                    console.error('Error adding ticket:', error);
+                    console.error(`Error ${method === 'POST' ? 'creating' : 'editing'} ticket:`, error);
                 });
             } else {
                 alert('Please fill in all fields.');
