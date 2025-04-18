@@ -243,9 +243,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     priority: priority
                 };
         
-                // Send the new ticket to the backend using POST
-                fetch('/api/tickets', {
-                    method: 'POST',
+                const isEditing = !!currentlyEditingTicketId;
+                const endpoint = isEditing ? `/api/tickets/${currentlyEditingTicketId}` : '/api/tickets';
+                const method = isEditing ? 'PUT' : 'POST';
+        
+                fetch(endpoint, {
+                    method,
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -260,17 +263,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     const modal = bootstrap.Modal.getInstance(document.getElementById('createTicketModal'));
                     modal.hide();
         
-                    // Reset the form
                     document.getElementById('ticketForm').reset();
+                    currentlyEditingTicketId = null; // Reset the edit state
                 })
                 .catch(error => {
-                    console.error('Error adding ticket:', error);
+                    console.error(`Error ${method === 'POST' ? 'creating' : 'editing'} ticket:`, error);
                 });
             } else {
                 alert('Please fill in all fields.');
             }
         });
-    }
+    }   
 
     //listener for  staffnumber
     document.getElementById('staffNumber').addEventListener('blur', function () {
