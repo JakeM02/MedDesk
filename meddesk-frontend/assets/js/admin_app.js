@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const ticketList = document.getElementById('ticketList');
     const navbar = document.getElementById('navbar');
 
+    let currentlyEditingTicketId = null;
+
     // Dark mode functionality
     function enableDarkMode() {
         document.body.classList.add('dark-mode');
@@ -273,6 +275,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Ticket creation functionality
     if (createTicketButton && saveTicketButton) {
         createTicketButton.addEventListener('click', function () {
+            currentlyEditingTicketId = null;
+            document.getElementById('ticketForm').reset();
             const modal = new bootstrap.Modal(document.getElementById('createTicketModal'));
             modal.show();
         });
@@ -298,7 +302,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     email: userEmail,
                     priority: priority
                 };
-        
+
                 const isEditing = !!currentlyEditingTicketId;
                 const endpoint = isEditing ? `/api/tickets/${currentlyEditingTicketId}` : '/api/tickets';
                 const method = isEditing ? 'PUT' : 'POST';
@@ -329,7 +333,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('Please fill in all fields.');
             }
         });
-    }
+    }   
+
 
     //listener for  staffnumber
     document.getElementById('staffNumber').addEventListener('blur', function () {

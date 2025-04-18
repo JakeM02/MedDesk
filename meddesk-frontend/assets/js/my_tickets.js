@@ -1,9 +1,13 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const ticketList = document.getElementById('ticketList');
-  const navbar = document.getElementById('navbar');
-  const darkModeToggle = document.getElementById('darkModeToggle');
- 
+    const ticketList = document.getElementById('ticketList');
+    const navbar = document.getElementById('navbar');
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const saveTicketButton = document.getElementById('saveTicketButton');
+    const createTicketModal = document.getElementById('createTicketModal');
 
+    let currentlyEditingTicketId = null;
+
+    // Dark mode functionality
   function enableDarkMode() {
     document.body.classList.add('dark-mode');
     navbar.classList.add('bg-dark', 'navbar-dark');
@@ -95,7 +99,7 @@ if (darkModeToggle) {
             }
             return response.json();
         })
-        .then(data => {
+        .then(() => {
             alert('Ticket archived successfully!');
             displayMyTickets(); // Refresh the ticket list to remove the archived ticket
         })
@@ -105,12 +109,11 @@ if (darkModeToggle) {
         });
     }
 
-
-
-  function openTicketDetails(ticket) {
-      const ticketDetailsContent = document.getElementById('ticketDetailsContent');
-      const ticketDetailsModalLabel = document.getElementById('ticketDetailsModalLabel');
-      const modalFooter = document.getElementById('ticketDetailsFooter');
+    // Open ticket details modal
+    function openTicketDetails(ticket) {
+        const ticketDetailsContent = document.getElementById('ticketDetailsContent');
+        const ticketDetailsModalLabel = document.getElementById('ticketDetailsModalLabel');
+        const ticketDetailsFooter = document.getElementById('ticketDetailsFooter');
 
       ticketDetailsModalLabel.innerHTML = `<p>Ticket #${ticket.id}: ${ticket.title}</p>`;
       ticketDetailsContent.innerHTML = `
@@ -127,51 +130,98 @@ if (darkModeToggle) {
       const modal = new bootstrap.Modal(document.getElementById('ticketDetailsModal'));
       modal.show();
 
-      modalFooter.innerHTML = "";  // Clears previous buttons
+        ticketDetailsFooter.innerHTML = "";  // Clears previous buttons
 
-      // Add "Edit" button
-      const editButton = document.createElement('button');
-      editButton.className = 'btn btn-warning editTicketButton';
-      editButton.textContent = 'Edit';
-      editButton.setAttribute('data-ticket-id', ticket.id);
-      editButton.addEventListener('click', function () {
-          currentlyEditingTicketId = ticket.id;
-      
-          // Prefill the form with the existing ticket info
-          document.getElementById('userName').value = ticket.employee;
-          document.getElementById('staffNumber').value = ticket.staff_number;
-          document.getElementById('phoneNumber').value = ticket.phone_number;
-          document.getElementById('location').value = ticket.location;
-          document.getElementById('issueTitle').value = ticket.title;
-          document.getElementById('issueDescription').value = ticket.description;
-          document.getElementById('userEmail').value = ticket.email;
-          document.getElementById('priority').value = ticket.priority;
-      
-          // Hide ticket details modal
-          bootstrap.Modal.getInstance(document.getElementById('ticketDetailsModal')).hide();
-      
-          // Show the edit modal
-          const editModal = new bootstrap.Modal(document.getElementById('createTicketModal'));
-          editModal.show();
-      });
+        // Add "Edit" button
+        const editButton = document.createElement('button');
+        editButton.className = 'btn btn-warning editTicketButton';
+        editButton.textContent = 'Edit';
+        editButton.setAttribute('data-ticket-id', ticket.id);
+        editButton.addEventListener('click', function () {
+            currentlyEditingTicketId = ticket.id;
 
-      modalFooter.appendChild(editButton);
+            document.getElementById('userName').value = ticket.employee;
+            document.getElementById('staffNumber').value = ticket.staff_number;
+            document.getElementById('phoneNumber').value = ticket.phone_number;
+            document.getElementById('location').value = ticket.location;
+            document.getElementById('issueTitle').value = ticket.title;
+            document.getElementById('issueDescription').value = ticket.description;
+            document.getElementById('userEmail').value = ticket.email;
+            document.getElementById('priority').value = ticket.priority;
 
-      // Add Archive Ticket button
-      const archiveButton = document.createElement('button');
-      archiveButton.className = 'btn btn-primary';
-      archiveButton.id = 'archiveTicketButton';
-      archiveButton.textContent = 'Archive Ticket';
-      archiveButton.addEventListener('click', function () {
-          archiveMyTicket(ticket);
-          bootstrap.Modal.getInstance(document.getElementById('ticketDetailsModal')).hide();
-      });
-      modalFooter.appendChild(archiveButton);
-  }
+            bootstrap.Modal.getInstance(document.getElementById('ticketDetailsModal')).hide();
+            new bootstrap.Modal(document.getElementById('createTicketModal')).show();
+        });
+        ticketDetailsFooter.appendChild(editButton);
 
-
-    // Initial display of unassigned tickets 
-    if (ticketList) {
-        displayMyTickets();
+        // Add Archive Ticket button
+        const archiveButton = document.createElement('button');
+        archiveButton.className = 'btn btn-primary';
+        archiveButton.id = 'archiveTicketButton';
+        archiveButton.textContent = 'Archive Ticket';
+        archiveButton.addEventListener('click', function () {
+            archiveMyTicket(ticket);
+            bootstrap.Modal.getInstance(document.getElementById('ticketDetailsModal')).hide();
+        });
+        ticketDetailsFooter.appendChild(archiveButton);
     }
+
+    // Save Ticket (create or edit)
+    if (saveTicketButton) {
+        saveTicketButton.addEventListener('click', function () {
+            const payload = {
+                employee: document.getElementById('userName').value,
+                staff_number: document.getElementById('staffNumber').value,
+                phone_number: document.getElementById('phoneNumber').value,
+                location: document.getElementById('location').value,
+                title: document.getElementById('issueTitle').value,
+                description: document.getElementById('issueDescription').value,
+                email: document.getElementById('userEmail').value,
+                priority: document.getElementById('priority').value
+            };
+
+            if (Object.values(payload).some(v => !v)) {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            const method = currentlyEditingTicketId ? 'PUT' : 'POST';
+            const url = currentlyEditingTicketId ? `/api/tickets/${currentlyEditingTicketId}` : '/api/tickets';
+
+            fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(() => {
+                document.getElementById('ticketForm').reset();
+                currentlyEditingTicketId = null;
+                bootstrap.Modal.getInstance(createTicketModal).hide();
+                displayMyTickets();
+            })
+            .catch(err => {
+                console.error("Error saving ticket:", err);
+                alert("Error saving ticket.");
+            });
+        });
+    }
+
+    // Listener for staff number autofill
+    document.getElementById('staffNumber').addEventListener('blur', function () {
+        const staffNumber = this.value;
+        fetch(`/api/employees/${staffNumber}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.name) {
+                    document.getElementById('userName').value = data.name;
+                    document.getElementById('userEmail').value = data.email;
+                    document.getElementById('phoneNumber').value = data.phone_number;
+                    document.getElementById('location').value = data.location;
+                }
+            });
+    });
+
+    // Initial ticket list
+    if (ticketList) displayMyTickets();
 });

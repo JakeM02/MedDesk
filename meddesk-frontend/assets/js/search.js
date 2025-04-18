@@ -20,6 +20,7 @@ function searchTickets() {
           // Populate the modal with ticket details
           const modalTitle = document.getElementById('ticketDetailsModalLabel');
           const modalBody = document.getElementById('ticketDetailsContent');
+          const modalFooter = document.getElementById('ticketDetailsFooter');
 
           modalTitle.textContent = `Ticket #${ticket.id} - ${ticket.title}`;
           modalBody.innerHTML = `
@@ -32,7 +33,36 @@ function searchTickets() {
               <p><strong>Assigned to:</strong> ${ticket.assigned_username || 'Unassigned'}</p>                   
           `;
 
-          // Show the modal
+          modalFooter.innerHTML = '';
+
+          // Close Button
+          const closeButton = document.createElement('button');
+          closeButton.className = 'btn btn-secondary';
+          closeButton.setAttribute('data-bs-dismiss', 'modal');
+          closeButton.textContent = 'Close';
+          modalFooter.appendChild(closeButton);
+
+          // Edit Button
+          const editButton = document.createElement('button');
+          editButton.className = 'btn btn-warning';
+          editButton.textContent = 'Edit';
+          editButton.addEventListener('click', function () {
+              currentlyEditingTicketId = ticket.id;
+
+              document.getElementById('userName').value = ticket.employee;
+              document.getElementById('staffNumber').value = ticket.staff_number;
+              document.getElementById('phoneNumber').value = ticket.phone_number;
+              document.getElementById('location').value = ticket.location;
+              document.getElementById('issueTitle').value = ticket.title;
+              document.getElementById('issueDescription').value = ticket.description;
+              document.getElementById('userEmail').value = ticket.email;
+              document.getElementById('priority').value = ticket.priority;
+
+              bootstrap.Modal.getInstance(document.getElementById('ticketDetailsModal')).hide();
+              new bootstrap.Modal(document.getElementById('createTicketModal')).show();
+          });
+          modalFooter.appendChild(editButton);
+
           const ticketDetailsModal = new bootstrap.Modal(document.getElementById('ticketDetailsModal'));
           ticketDetailsModal.show();
       })
@@ -41,7 +71,6 @@ function searchTickets() {
           alert('An error occurred while searching for the ticket.');
       });
 }
-
 
 // Add event listener for the search button
 document.addEventListener("DOMContentLoaded", function () {
