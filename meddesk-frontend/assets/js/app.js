@@ -4,9 +4,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const saveTicketButton = document.getElementById('saveTicketButton');
     const ticketList = document.getElementById('ticketList');
     const navbar = document.getElementById('navbar');
- 
-
-    let currentlyEditingTicketId = null; 
 
     // Dark mode functionality
     function enableDarkMode() {
@@ -71,12 +68,14 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .catch(error => console.error('Error fetching unassigned tickets:', error));
     }
-    
 
     // Function to archive a ticket
     function archiveTicket(ticket) {
         fetch(`/api/tickets/${ticket.id}/archive`, {
-            method: 'POST'  // Use POST to archive the ticket
+            method: 'POST', // Use POST to archive the ticket
+            headers: {
+                "Content-Type": "application/json"
+            }  
         })
         .then(response => {
             if (!response.ok) {
@@ -108,18 +107,25 @@ document.addEventListener('DOMContentLoaded', function () {
     function assignTicket(ticketId, username) { // Accept username as a parameter
         fetch(`/api/tickets/${ticketId}/assign`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username })
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username: username }) // Use the provided username
         })
-            .then(res => res.json())
-            .then(data => {
-                if (data.error) return alert("Error: " + data.error);
-                alert("Ticket assigned to " + username);
-                location.reload();
-            })
-            .catch(err => console.error("Error assigning ticket:", err));
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert("Error: " + data.error);
+            } else {
+                alert("Ticket assigned successfully to " + username);
+                location.reload(); // Refresh to reflect changes
+            }
+        })
+        .catch(error => console.error("Error assigning ticket:", error));
     }
 
+
+    // Open ticket details in a modal
     function openTicketFromActive(ticket) {
         const ticketDetailsContent = document.getElementById('ticketDetailsContent');
         const ticketDetailsModalLabel = document.getElementById('ticketDetailsModalLabel');
@@ -135,31 +141,37 @@ document.addEventListener('DOMContentLoaded', function () {
             <p><strong>Priority:</strong> ${ticket.priority || 'N/A'}</p>
             <p><strong>Description:</strong> ${ticket.description}</p>
         `;
-        
+
+        // Initialize and show the modal
+        const modal = new bootstrap.Modal(document.getElementById('ticketDetailsModal'));
+        modal.show();
+
         // Reset footer before adding buttons
         modalFooter.innerHTML = '';
 
-        const closeBtn = document.createElement('button');
-        closeBtn.className = 'btn btn-secondary';
-        closeBtn.textContent = 'Close';
-        closeBtn.setAttribute('data-bs-dismiss', 'modal');
-        modalFooter.appendChild(closeBtn);
+        // Add "Close" button
+        const closeButton = document.createElement('button');
+        closeButton.className = 'btn btn-secondary';
+        closeButton.setAttribute('data-bs-dismiss', 'modal');
+        closeButton.textContent = 'Close';
+        modalFooter.appendChild(closeButton);
 
-        const archiveBtn = document.createElement('button');
-        archiveBtn.className = 'btn btn-primary';
-        archiveBtn.id = 'archiveTicketButton';
-        archiveBtn.textContent = 'Archive Ticket';
-        archiveBtn.addEventListener('click', () => {
+        // Add "Archive Ticket" button
+        const archiveButton = document.createElement('button');
+        archiveButton.className = 'btn btn-primary';
+        archiveButton.id = 'archiveTicketButton';
+        archiveButton.textContent = 'Archive Ticket';
+        archiveButton.addEventListener('click', function () {
             archiveTicket(ticket);
             bootstrap.Modal.getInstance(document.getElementById('ticketDetailsModal')).hide();
         });
-        modalFooter.appendChild(archiveBtn);
+        modalFooter.appendChild(archiveButton);
 
         // Add "Edit" button
         const editButton = document.createElement('button');
         editButton.className = 'btn btn-warning editTicketButton';
         editButton.textContent = 'Edit';
-        editButton.dataset.ticketId = ticket.id; 
+        editButton.setAttribute('data-ticket-id', ticket.id);
         modalFooter.appendChild(editButton);
 
         // Add "Assign Ticket" button
@@ -181,76 +193,65 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    if (createTicketButton) {
-        createTicketButton.addEventListener('click', () => {
-            currentlyEditingTicketId = null;
-            document.getElementById('ticketForm').reset();
-            new bootstrap.Modal(document.getElementById('createTicketModal')).show();
+    // Ticket creation functionality
+    if (createTicketButton && saveTicketButton) {
+        createTicketButton.addEventListener('click', function () {
+            const modal = new bootstrap.Modal(document.getElementById('createTicketModal'));
+            modal.show();
         });
-    }
 
-    if (saveTicketButton) {
-        saveTicketButton.addEventListener('click', () => {
-            const payload = {
-                employee: document.getElementById('userName').value,
-                staff_number: document.getElementById('staffNumber').value,
-                phone_number: document.getElementById('phoneNumber').value,
-                location: document.getElementById('location').value,
-                title: document.getElementById('issueTitle').value,
-                description: document.getElementById('issueDescription').value,
-                email: document.getElementById('userEmail').value,
-                priority: document.getElementById('priority').value
-            };
+        saveTicketButton.addEventListener('click', function () {
+            const userName = document.getElementById('userName').value;
+            const staffNumber = document.getElementById('staffNumber').value;
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const location = document.getElementById('location').value;
+            const issueTitle = document.getElementById('issueTitle').value;
+            const issueDescription = document.getElementById('issueDescription').value;
+            const userEmail = document.getElementById('userEmail').value;
+            const priority = document.getElementById('priority').value;
 
-            if (Object.values(payload).some(v => !v)) {
-                alert('Please fill in all fields.');
-                return;
-            }
-
-            const method = currentlyEditingTicketId ? 'PUT' : 'POST';
-            const url = currentlyEditingTicketId ? `/api/tickets/${currentlyEditingTicketId}` : '/api/tickets';
-
-            fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-                .then(res => res.json())
-                .then(() => {
+            if (userName && staffNumber && phoneNumber && location && issueTitle && issueDescription && userEmail && priority) {
+                const newTicket = {
+                    employee: userName,
+                    staff_number: staffNumber,
+                    phone_number: phoneNumber,
+                    location: location,
+                    title: issueTitle,
+                    description: issueDescription,
+                    email: userEmail,
+                    priority: priority
+                };
+        
+                // Send the new ticket to the backend using POST
+                fetch('/api/tickets', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newTicket)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Refresh the tickets list after adding the new ticket
+                    displayActiveTickets();
+        
+                    // Hide the modal after successful creation
                     const modal = bootstrap.Modal.getInstance(document.getElementById('createTicketModal'));
                     modal.hide();
+        
+                    // Reset the form
                     document.getElementById('ticketForm').reset();
-                    currentlyEditingTicketId = null;
-                    displayActiveTickets();
                 })
-                .catch(err => {
-                    console.error('Error saving ticket:', err);
-                    alert('Error saving ticket.');
+                .catch(error => {
+                    console.error('Error adding ticket:', error);
                 });
+            } else {
+                alert('Please fill in all fields.');
+            }
         });
     }
 
-    document.body.addEventListener('click', function (e) {
-        if (e.target.classList.contains('editTicketButton')) {
-            const id = e.target.dataset.ticketId;
-            fetch(`/api/tickets/${id}`)
-                .then(res => res.json())
-                .then(ticket => {
-                    currentlyEditingTicketId = id;
-                    document.getElementById('userName').value = ticket.employee;
-                    document.getElementById('staffNumber').value = ticket.staff_number;
-                    document.getElementById('phoneNumber').value = ticket.phone_number;
-                    document.getElementById('location').value = ticket.location;
-                    document.getElementById('issueTitle').value = ticket.title;
-                    document.getElementById('issueDescription').value = ticket.description;
-                    document.getElementById('userEmail').value = ticket.email;
-                    document.getElementById('priority').value = ticket.priority;
-                    bootstrap.Modal.getInstance(document.getElementById('ticketDetailsModal')).hide();
-                    new bootstrap.Modal(document.getElementById('createTicketModal')).show();
-                });
-        }
-    });
-
+    //listener for  staffnumber
     document.getElementById('staffNumber').addEventListener('blur', function () {
         const staffNumber = this.value;
         fetch(`/api/employees/${staffNumber}`)
@@ -268,5 +269,26 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(error => console.error('Error fetching employee info:', error));
     });
 
-    if (ticketList) displayActiveTickets();
+    document.addEventListener('DOMContentLoaded', function () {
+        const unassignedTicketsBtn = document.getElementById('unassignedTicketsBtn');
+        const myTicketsBtn = document.getElementById('myTicketsBtn');
+    
+        if (unassignedTicketsBtn) {
+            unassignedTicketsBtn.addEventListener('click', function () {
+                displayActiveTickets();  // Show unassigned tickets
+            });
+        }
+    
+        if (myTicketsBtn) {
+            myTicketsBtn.addEventListener('click', function () {
+                displayMyTickets();  // Show tickets assigned to the logged-in user
+            });
+        }
+    
+    });
+
+    // Initial display of active tickets (on page load)
+    if (ticketList) {
+        displayActiveTickets();
+    }
 });
