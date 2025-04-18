@@ -249,6 +249,8 @@ document.addEventListener('DOMContentLoaded', function () {
             editModal.show();
         });
 
+        modalFooter.appendChild(editButton);
+
         // Add "Assign Ticket" button
         const assignButton = document.createElement('button');
         assignButton.className = 'btn btn-success';

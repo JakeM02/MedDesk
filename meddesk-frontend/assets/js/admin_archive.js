@@ -182,6 +182,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     editModal.show();
                 });
 
+                modalFooter.appendChild(editButton);
+
                 // Apply dark mode styling for the modal if dark mode is enabled
                 if (document.body.classList.contains('dark-mode')) {
                     document.getElementById('ticketDetailsModalContent').classList.add('dark-mode');
