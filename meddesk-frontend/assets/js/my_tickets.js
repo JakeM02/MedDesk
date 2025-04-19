@@ -40,25 +40,18 @@ if (darkModeToggle) {
 
   
   function displayMyTickets() {
-    const ticketList = document.getElementById("ticketList");
     ticketList.innerHTML = "";
 
-    fetch("/api/tickets/my", {
-        method: "GET",
-        credentials: "include",  // Sends session cookie with request
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(tickets => {
-        if (!Array.isArray(tickets)) {
-            console.error("Error: API did not return an array", tickets);
-            ticketList.innerHTML = "<p>Error loading tickets.</p>";
-            return;
-        }
+    fetch("/api/tickets/my")
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to fetch tickets');
+            return response.json();
+        })
+        .then(tickets => {
+            if (!Array.isArray(tickets)) {
+                ticketList.innerHTML = '<p>Error loading tickets.</p>';
+                return;
+            }
 
         if (tickets.length === 0) {
             ticketList.innerHTML = "<p>No tickets assigned to you.</p>";
@@ -78,11 +71,14 @@ if (darkModeToggle) {
 
             // Apply dark mode styling if its enabled
             if (document.body.classList.contains('dark-mode')) {
-                ticketDiv.classList.add('dark-mode');
-            }
+                    ticketDiv.classList.add('dark-mode');
+                }
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching my tickets:", error);
+            ticketList.innerHTML = '<p>Error loading tickets.</p>';
         });
-    })
-    .catch(error => console.error("Error fetching my tickets:", error));
 }
 
     // Function to archive a ticket and unassign it
