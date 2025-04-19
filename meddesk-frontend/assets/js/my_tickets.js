@@ -135,7 +135,8 @@ if (darkModeToggle) {
         editButton.setAttribute('data-ticket-id', ticket.id);
         editButton.addEventListener('click', function () {
             currentlyEditingTicketId = ticket.id;
-
+        
+            // Prefill the form with the existing ticket info
             document.getElementById('userName').value = ticket.employee;
             document.getElementById('staffNumber').value = ticket.staff_number;
             document.getElementById('phoneNumber').value = ticket.phone_number;
@@ -144,11 +145,16 @@ if (darkModeToggle) {
             document.getElementById('issueDescription').value = ticket.description;
             document.getElementById('userEmail').value = ticket.email;
             document.getElementById('priority').value = ticket.priority;
-
+        
+            // Hide ticket details modal
             bootstrap.Modal.getInstance(document.getElementById('ticketDetailsModal')).hide();
-            new bootstrap.Modal(document.getElementById('createTicketModal')).show();
+        
+            // Show the edit modal
+            const editModal = new bootstrap.Modal(document.getElementById('createTicketModal'));
+            editModal.show();
         });
-        ticketDetailsFooter.appendChild(editButton);
+        
+        modalFooter.appendChild(editButton);
 
         // Add Archive Ticket button
         const archiveButton = document.createElement('button');
@@ -203,20 +209,6 @@ if (darkModeToggle) {
         });
     }
 
-    // Listener for staff number autofill
-    //document.getElementById('staffNumber').addEventListener('blur', function () {
-        //const staffNumber = this.value;
-        //fetch(`/api/employees/${staffNumber}`)
-            //.then(res => res.json())
-            //.then(data => {
-                //if (data.name) {
-                    //document.getElementById('userName').value = data.name;
-                    //document.getElementById('userEmail').value = data.email;
-                    //document.getElementById('phoneNumber').value = data.phone_number;
-                    //document.getElementById('location').value = data.location;
-                //}
-           // });
-    //});
 
     // Initial ticket list
     if (ticketList) displayMyTickets();
