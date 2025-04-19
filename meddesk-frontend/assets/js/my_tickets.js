@@ -197,6 +197,31 @@ if (darkModeToggle) {
         });
     }
 
+    //listener for  staffnumber
+    const editStaffNumberField = document.getElementById('editStaffNumber');
+    if (editStaffNumberField) {
+        editStaffNumberField.addEventListener('blur', function () {
+            const staffNumber = this.value.trim();
+            if (!staffNumber) return;
+
+            fetch(`/api/employees/${staffNumber}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.name) {
+                        document.getElementById('editUserName').value = data.name;
+                        document.getElementById('editUserEmail').value = data.email;
+                        document.getElementById('editPhoneNumber').value = data.phone_number;
+                        document.getElementById('editLocation').value = data.location;
+                    } else {
+                        alert('Employee not found!');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching employee info:', error);
+                });
+        });
+    }
+
 
     // Initial ticket list
     if (ticketList) displayMyTickets();
