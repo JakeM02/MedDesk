@@ -51,7 +51,8 @@ function searchTickets() {
           editButton.className = 'btn btn-warning';
           editButton.textContent = 'Edit';
           editButton.addEventListener('click', function () {
-          currentlyEditingTicketId = ticket.id;
+          window.currentlyEditingTicketId = ticket.id;
+
         
           document.getElementById('editUserName').value = ticket.employee;
           document.getElementById('editStaffNumber').value = ticket.staff_number;

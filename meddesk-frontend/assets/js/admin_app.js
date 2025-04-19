@@ -304,8 +304,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     priority: priority
                 };
 
-                const isEditing = !!currentlyEditingTicketId;
-                const endpoint = isEditing ? `/api/tickets/${currentlyEditingTicketId}` : '/api/tickets';
+                const isEditing = !!window.currentlyEditingTicketId;
+                const endpoint = isEditing ? `/api/tickets/${window.currentlyEditingTicketId}` : '/api/tickets';
                 const method = isEditing ? 'PUT' : 'POST';
         
                 fetch(endpoint, {
