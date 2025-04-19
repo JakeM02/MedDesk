@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const ticketList = document.getElementById('ticketList');
     const navbar = document.getElementById('navbar');
 
+    let currentlyEditingTicketId = null;
+    
     // Dark mode functionality
     function enableDarkMode() {
         document.body.classList.add('dark-mode');
