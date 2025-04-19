@@ -204,19 +204,19 @@ if (darkModeToggle) {
     }
 
     // Listener for staff number autofill
-    document.getElementById('staffNumber').addEventListener('blur', function () {
-        const staffNumber = this.value;
-        fetch(`/api/employees/${staffNumber}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.name) {
-                    document.getElementById('userName').value = data.name;
-                    document.getElementById('userEmail').value = data.email;
-                    document.getElementById('phoneNumber').value = data.phone_number;
-                    document.getElementById('location').value = data.location;
-                }
-            });
-    });
+    //document.getElementById('staffNumber').addEventListener('blur', function () {
+        //const staffNumber = this.value;
+        //fetch(`/api/employees/${staffNumber}`)
+            //.then(res => res.json())
+            //.then(data => {
+                //if (data.name) {
+                    //document.getElementById('userName').value = data.name;
+                    //document.getElementById('userEmail').value = data.email;
+                    //document.getElementById('phoneNumber').value = data.phone_number;
+                    //document.getElementById('location').value = data.location;
+                //}
+           // });
+    //});
 
     // Initial ticket list
     if (ticketList) displayMyTickets();
