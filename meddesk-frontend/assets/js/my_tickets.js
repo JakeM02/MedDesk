@@ -154,7 +154,7 @@ if (darkModeToggle) {
             editModal.show();
         });
         
-        modalFooter.appendChild(editButton);
+        ticketDetailsFooter.appendChild(editButton);
 
         // Add Archive Ticket button
         const archiveButton = document.createElement('button');
