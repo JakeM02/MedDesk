@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const saveTicketButton = document.getElementById('saveTicketButton');
     const ticketList = document.getElementById('ticketList');
     const navbar = document.getElementById('navbar');
+    const editTicketSaveButton = document.getElementById('editTicketSaveButton');
 
     let currentlyEditingTicketId = null;
 
@@ -371,6 +372,44 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     
     });
+
+    if (editTicketSaveButton) {
+        editTicketSaveButton.addEventListener('click', function () {
+            const payload = {
+                employee: document.getElementById('editUserName').value,
+                staff_number: document.getElementById('editStaffNumber').value,
+                phone_number: document.getElementById('editPhoneNumber').value,
+                location: document.getElementById('editLocation').value,
+                title: document.getElementById('editIssueTitle').value,
+                description: document.getElementById('editIssueDescription').value,
+                email: document.getElementById('editUserEmail').value,
+                priority: document.getElementById('editPriority').value
+            };
+    
+            if (Object.values(payload).some(v => !v)) {
+                alert("Please fill in all fields.");
+                return;
+            }
+    
+            fetch(`/api/tickets/${currentlyEditingTicketId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(() => {
+                currentlyEditingTicketId = null;
+                bootstrap.Modal.getInstance(document.getElementById('editTicketModal')).hide();
+                // Refresh tickets
+                if (typeof displayMyTickets === 'function') displayMyTickets();
+                if (typeof displayActiveTickets === 'function') displayActiveTickets();
+            })
+            .catch(err => {
+                console.error("Error saving ticket:", err);
+                alert("Error saving ticket.");
+            });
+        });
+    }
 
     // Initial display of active tickets (on page load)
     if (ticketList) {
