@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const navbar = document.getElementById('navbar');
     const editTicketSaveButton = document.getElementById('editTicketSaveButton');
 
-    let currentlyEditingTicketId = null;
+    window.currentlyEditingTicketId = null;
 
     // Dark mode functionality
     function enableDarkMode() {
@@ -391,7 +391,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
     
-            fetch(`/api/tickets/${currentlyEditingTicketId}`, {
+            fetch(`/api/tickets/${window.currentlyEditingTicketId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
