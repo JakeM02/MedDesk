@@ -2,8 +2,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const ticketList = document.getElementById('ticketList');
     const navbar = document.getElementById('navbar');
     const darkModeToggle = document.getElementById('darkModeToggle');
-    const saveTicketButton = document.getElementById('saveTicketButton');
-    const createTicketModal = document.getElementById('createTicketModal');
+    const editTicketSaveButton = document.getElementById('editTicketSaveButton');
 
     let currentlyEditingTicketId = null;
 
@@ -132,26 +131,20 @@ if (darkModeToggle) {
         const editButton = document.createElement('button');
         editButton.className = 'btn btn-warning editTicketButton';
         editButton.textContent = 'Edit';
-        editButton.setAttribute('data-ticket-id', ticket.id);
         editButton.addEventListener('click', function () {
             currentlyEditingTicketId = ticket.id;
-        
-            // Prefill the form with the existing ticket info
-            document.getElementById('userName').value = ticket.employee;
-            document.getElementById('staffNumber').value = ticket.staff_number;
-            document.getElementById('phoneNumber').value = ticket.phone_number;
-            document.getElementById('location').value = ticket.location;
-            document.getElementById('issueTitle').value = ticket.title;
-            document.getElementById('issueDescription').value = ticket.description;
-            document.getElementById('userEmail').value = ticket.email;
-            document.getElementById('priority').value = ticket.priority;
-        
-            // Hide ticket details modal
+
+            document.getElementById('editUserName').value = ticket.employee;
+            document.getElementById('editStaffNumber').value = ticket.staff_number;
+            document.getElementById('editPhoneNumber').value = ticket.phone_number;
+            document.getElementById('editLocation').value = ticket.location;
+            document.getElementById('editIssueTitle').value = ticket.title;
+            document.getElementById('editIssueDescription').value = ticket.description;
+            document.getElementById('editUserEmail').value = ticket.email;
+            document.getElementById('editPriority').value = ticket.priority;
+
             bootstrap.Modal.getInstance(document.getElementById('ticketDetailsModal')).hide();
-        
-            // Show the edit modal
-            const editModal = new bootstrap.Modal(document.getElementById('createTicketModal'));
-            editModal.show();
+            new bootstrap.Modal(document.getElementById('editTicketModal')).show();
         });
         
         ticketDetailsFooter.appendChild(editButton);
@@ -168,18 +161,17 @@ if (darkModeToggle) {
         ticketDetailsFooter.appendChild(archiveButton);
     }
 
-    // Save Ticket (create or edit)
-    if (saveTicketButton) {
-        saveTicketButton.addEventListener('click', function () {
+    if (editTicketSaveButton) {
+        editTicketSaveButton.addEventListener('click', function () {
             const payload = {
-                employee: document.getElementById('userName').value,
-                staff_number: document.getElementById('staffNumber').value,
-                phone_number: document.getElementById('phoneNumber').value,
-                location: document.getElementById('location').value,
-                title: document.getElementById('issueTitle').value,
-                description: document.getElementById('issueDescription').value,
-                email: document.getElementById('userEmail').value,
-                priority: document.getElementById('priority').value
+                employee: document.getElementById('editUserName').value,
+                staff_number: document.getElementById('editStaffNumber').value,
+                phone_number: document.getElementById('editPhoneNumber').value,
+                location: document.getElementById('editLocation').value,
+                title: document.getElementById('editIssueTitle').value,
+                description: document.getElementById('editIssueDescription').value,
+                email: document.getElementById('editUserEmail').value,
+                priority: document.getElementById('editPriority').value
             };
 
             if (Object.values(payload).some(v => !v)) {
@@ -187,19 +179,15 @@ if (darkModeToggle) {
                 return;
             }
 
-            const method = currentlyEditingTicketId ? 'PUT' : 'POST';
-            const url = currentlyEditingTicketId ? `/api/tickets/${currentlyEditingTicketId}` : '/api/tickets';
-
-            fetch(url, {
-                method,
+            fetch(`/api/tickets/${currentlyEditingTicketId}`, {
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             })
             .then(res => res.json())
             .then(() => {
-                document.getElementById('ticketForm').reset();
                 currentlyEditingTicketId = null;
-                bootstrap.Modal.getInstance(createTicketModal).hide();
+                bootstrap.Modal.getInstance(document.getElementById('editTicketModal')).hide();
                 displayMyTickets();
             })
             .catch(err => {
