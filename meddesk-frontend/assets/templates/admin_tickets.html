@@ -58,6 +58,35 @@
     </div>
 </div>
 
+<!-- Modal for user registration -->
+<div class="modal" id="userModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content dark-mode">
+          <div class="modal-header dark-mode">
+              <h5 class="modal-title">Register New User</h5>
+          </div>
+          <div class="modal-body dark-mode">
+              <form id="registerUserForm">
+                  <div class="form-group">
+                      <label for="username">Username</label>
+                      <input type="text" class="form-control" id="username" placeholder="Enter username" required>
+                  </div>
+                  <div class="form-group">
+                      <label for="password">Password</label>
+                      <input type="password" class="form-control mb-4" id="password" placeholder="Enter password" required>
+                  </div>
+
+                  <!-- Modal footer inside the form -->
+                  <div class="modal-footer dark-mode pb-0" id="ticketDetailsFooter">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-primary" id="registerButton">Register</button>
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
+</div>
+
 <!-- Modal for editing a tickets details -->
 <div class="modal fade" id="editTicketModal" tabindex="-1" aria-labelledby="editTicketModalLabel" aria-hidden="true">
     <div class="modal-dialog">
