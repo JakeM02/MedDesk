@@ -248,7 +248,7 @@ document.addEventListener('DOMContentLoaded', function () {
           new bootstrap.Modal(document.getElementById('editTicketModal')).show();
       });
       
-      ticketDetailsFooter.appendChild(editButton);
+        modalFooter.appendChild(editButton);
 
 
         // Add "Assign Ticket" button
