@@ -178,25 +178,20 @@ document.addEventListener('DOMContentLoaded', function () {
         editButton.addEventListener('click', function () {
             currentlyEditingTicketId = ticket.id;
         
-            // Prefill the form with the existing ticket info
-            document.getElementById('userName').value = ticket.employee;
-            document.getElementById('staffNumber').value = ticket.staff_number;
-            document.getElementById('phoneNumber').value = ticket.phone_number;
-            document.getElementById('location').value = ticket.location;
-            document.getElementById('issueTitle').value = ticket.title;
-            document.getElementById('issueDescription').value = ticket.description;
-            document.getElementById('userEmail').value = ticket.email;
-            document.getElementById('priority').value = ticket.priority;
-        
-            // Hide ticket details modal
+            document.getElementById('editUserName').value = ticket.employee;
+            document.getElementById('editStaffNumber').value = ticket.staff_number;
+            document.getElementById('editPhoneNumber').value = ticket.phone_number;
+            document.getElementById('editLocation').value = ticket.location;
+            document.getElementById('editIssueTitle').value = ticket.title;
+            document.getElementById('editIssueDescription').value = ticket.description;
+            document.getElementById('editUserEmail').value = ticket.email;
+            document.getElementById('editPriority').value = ticket.priority;
+
             bootstrap.Modal.getInstance(document.getElementById('ticketDetailsModal')).hide();
-        
-            // Show the edit modal
-            const editModal = new bootstrap.Modal(document.getElementById('createTicketModal'));
-            editModal.show();
+            new bootstrap.Modal(document.getElementById('editTicketModal')).show();
         });
         
-        modalFooter.appendChild(editButton);
+        ticketDetailsFooter.appendChild(editButton);
 
         // Add "Assign Ticket" button
         const assignButton = document.createElement('button');
